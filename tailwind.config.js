@@ -1,0 +1,68 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: '#00ADCA',
+          50: '#E8F8FB',
+          100: '#D1F1F7',
+          200: '#A3E3EF',
+          300: '#75D5E7',
+          400: '#3CC0D8',
+          500: '#00ADCA',
+          600: '#008BA3',
+          700: '#00697B',
+          800: '#004752',
+          900: '#0B2C35',
+        },
+        secondary: {
+          DEFAULT: '#B8956C',
+          50: '#F8F4EE',
+          100: '#F0E8DB',
+          200: '#E1D1B7',
+          300: '#D2BA93',
+          400: '#C5A77B',
+          500: '#B8956C',
+          600: '#9A7A52',
+          700: '#7A6041',
+          800: '#5A4630',
+          900: '#3A2E20',
+        },
+        ink: {
+          DEFAULT: '#0B2C35',
+          50: '#F2F5F6',
+          100: '#E4EAEC',
+          200: '#C5D2D6',
+          300: '#8FA8B0',
+          400: '#5A7A84',
+          500: '#3A5A64',
+          600: '#274048',
+          700: '#1A3038',
+          800: '#12262C',
+          900: '#0B2C35',
+        },
+      },
+      fontFamily: {
+        sans: ['"IBM Plex Sans Arabic"', 'Tahoma', 'Arial', 'sans-serif'],
+        display: ['"IBM Plex Sans Arabic"', 'Tahoma', 'sans-serif'],
+        naskh: ['"Noto Naskh Arabic"', '"IBM Plex Sans Arabic"', 'serif'],
+      },
+      boxShadow: {
+        brand: '0 8px 28px -8px rgba(0, 173, 202, 0.28)',
+        panel: '0 1px 0 rgba(11, 44, 53, 0.06), 0 8px 24px -12px rgba(11, 44, 53, 0.12)',
+        soft: '0 2px 12px -4px rgba(11, 44, 53, 0.08)',
+      },
+      borderRadius: {
+        sm: '2px',
+        DEFAULT: '4px',
+        md: '6px',
+        lg: '8px',
+        xl: '10px',
+        '2xl': '12px',
+      },
+    },
+  },
+  plugins: [],
+};
