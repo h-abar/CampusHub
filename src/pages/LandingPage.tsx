@@ -6,6 +6,7 @@ import {
   ClipboardList,
   Palette,
   Theater,
+  DollarSign,
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import HeroSlider from '../components/HeroSlider';
@@ -96,6 +97,65 @@ export default function LandingPage() {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Diriyah Conferences & Business Center Feature Showcase */}
+      <section className="bg-gradient-to-r from-ink-950 via-ink to-primary-950 text-white py-12 border-y border-[var(--line)] relative overflow-hidden">
+        <div className="absolute top-0 start-0 w-24 h-24 border-s border-t border-secondary/40" />
+        <div className="absolute bottom-0 end-0 w-24 h-24 border-e border-b border-primary/40" />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="grid lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-8 space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-secondary/30 text-secondary-300 text-xs font-semibold">
+                <span className="w-2 h-2 rounded-full bg-secondary" />
+                <span>{isAr ? 'مركز مؤتمرات وأعمال الدرعية' : 'Diriyah Conferences & Business Center'}</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold leading-tight">
+                {isAr ? 'بيئة متكاملة لاستضافة المؤتمرات والفعاليات بمعايير استثنائية' : 'Integrated Ecosystem for World-Class Conferences & Events'}
+              </h2>
+              <p className="text-white/80 text-sm font-naskh leading-relaxed max-w-2xl">
+                {isAr
+                  ? 'اكتشف مرافق المركز: المسرح الرئيسي (520 مقعد)، البهو الملكي للمعارض، قاعات الاجتماعات الذكية B2، مع باقات تأجير شاملة، حاسبة تسعير فورية، وعقد إلكتروني موحد.'
+                  : 'Explore world-class facilities: 520-seat auditorium, exhibition lobby, smart boardrooms, with comprehensive packages, instant pricing calculator, and unified e-contracts.'}
+              </p>
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <Link
+                  to="/diriyah-center"
+                  className="btn-primary !py-2.5 !px-5 text-xs font-bold flex items-center gap-2 shadow-md"
+                >
+                  <span>{isAr ? 'استعراض مركز مؤتمرات الدرعية' : 'Explore Diriyah Center'}</span>
+                  <Arrow className="w-4 h-4" />
+                </Link>
+                <Link
+                  to="/diriyah-center#calculator"
+                  className="px-4 py-2.5 rounded-md bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                >
+                  <DollarSign className="w-4 h-4 text-secondary-300" />
+                  <span>{isAr ? 'حاسبة الباقات والأسعار' : 'Pricing Calculator'}</span>
+                </Link>
+              </div>
+            </div>
+
+            <div className="lg:col-span-4 grid grid-cols-2 gap-3">
+              <div className="p-4 bg-white/10 backdrop-blur-md rounded-xl border border-white/15 text-center">
+                <div className="text-2xl font-bold text-secondary-300 font-mono">872</div>
+                <div className="text-xs text-white/80 font-naskh mt-1">{isAr ? 'سعة قاعة الدرعية الكبرى' : 'Auditorium Seats'}</div>
+              </div>
+              <div className="p-4 bg-white/10 backdrop-blur-md rounded-xl border border-white/15 text-center">
+                <div className="text-2xl font-bold text-primary-300 font-mono">710 م²</div>
+                <div className="text-xs text-white/80 font-naskh mt-1">{isAr ? 'مركز المعارض والمؤتمرات' : 'Exhibition Center'}</div>
+              </div>
+              <div className="p-4 bg-white/10 backdrop-blur-md rounded-xl border border-white/15 text-center">
+                <div className="text-2xl font-bold text-emerald-300 font-mono">13</div>
+                <div className="text-xs text-white/80 font-naskh mt-1">{isAr ? 'مرفقاً وقاعة ذكية' : 'Smart Venues'}</div>
+              </div>
+              <div className="p-4 bg-white/10 backdrop-blur-md rounded-xl border border-white/15 text-center">
+                <div className="text-2xl font-bold text-amber-300 font-mono">100%</div>
+                <div className="text-xs text-white/80 font-naskh mt-1">{isAr ? 'عقد وحجز رقمي' : 'Digital E-Contract'}</div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

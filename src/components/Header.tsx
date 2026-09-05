@@ -26,6 +26,7 @@ export default function Header() {
 
   const links = [
     { to: '/', label: t('nav.home'), end: true },
+    { to: '/diriyah-center', label: t('nav.diriyah') },
     { to: '/services', label: t('nav.services') },
     { to: '/venues', label: t('nav.venues') },
     { to: '/track', label: t('nav.track') },

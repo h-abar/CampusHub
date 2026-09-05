@@ -82,6 +82,7 @@ export default function Layout() {
                   <div className="mb-4" style={{ height: 3, width: 48, backgroundColor: '#B8956C' }} />
                   <ul className="space-y-2.5 text-sm">
                     {[
+                      { to: '/diriyah-center', label: t('nav.diriyah') },
                       { to: '/services', label: t('nav.services') },
                       { to: '/venues', label: t('nav.venues') },
                       { to: '/track', label: t('nav.track') },

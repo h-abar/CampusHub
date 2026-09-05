@@ -1,6 +1,6 @@
-import type { ServiceRequest, SystemSettings } from '../types';
+import type { ServiceRequest, SystemSettings, VenueInfo } from '../types';
 import type { User, StoredAdmin } from '../types/auth';
-import { DEFAULT_SETTINGS, SEED_ADMINS, createSampleRequests } from '../data/defaults';
+import { DEFAULT_SETTINGS, SEED_ADMINS, DEFAULT_VENUES, createSampleRequests } from '../data/defaults';
 
 const KEYS = {
   USER: 'auth_user',
@@ -8,6 +8,7 @@ const KEYS = {
   SETTINGS: 'systemSettings',
   // v2: fresh key so all installs (even with stale/corrupt data) get the full seed
   ADMINS: 'portal_admins_v2',
+  VENUES: 'portal_venues_v2',
   INIT: 'portal_initialized_v2',
 } as const;
 
@@ -62,6 +63,27 @@ export function ensureInitialized(): void {
       general: existing.general || DEFAULT_SETTINGS.general,
     };
     localStorage.setItem(KEYS.SETTINGS, JSON.stringify(merged));
+  }
+
+  // Venues: initialize or sync new default venues
+  const storedVenues = localStorage.getItem(KEYS.VENUES);
+  if (!storedVenues) {
+    localStorage.setItem(KEYS.VENUES, JSON.stringify(DEFAULT_VENUES));
+  } else {
+    try {
+      const existingVenues = JSON.parse(storedVenues) as VenueInfo[];
+      const missingVenues = DEFAULT_VENUES.filter(
+        (dv) => !existingVenues.some((v) => v.id === dv.id)
+      );
+      if (missingVenues.length > 0) {
+        localStorage.setItem(
+          KEYS.VENUES,
+          JSON.stringify([...existingVenues, ...missingVenues])
+        );
+      }
+    } catch {
+      localStorage.setItem(KEYS.VENUES, JSON.stringify(DEFAULT_VENUES));
+    }
   }
 
   if (localStorage.getItem(KEYS.INIT)) return;
@@ -156,4 +178,44 @@ export function updateStoredAdmin(id: string, patch: Partial<StoredAdmin>): Stor
 
 export function deleteStoredAdmin(id: string): void {
   saveStoredAdmins(getStoredAdmins().filter((a) => a.id !== id));
+}
+
+/* ================= Venues ================= */
+
+export function getStoredVenues(): VenueInfo[] {
+  ensureInitialized();
+  const raw = localStorage.getItem(KEYS.VENUES);
+  if (!raw) {
+    localStorage.setItem(KEYS.VENUES, JSON.stringify(DEFAULT_VENUES));
+    return DEFAULT_VENUES;
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_VENUES;
+  } catch {
+    return DEFAULT_VENUES;
+  }
+}
+
+export function saveStoredVenues(venues: VenueInfo[]): void {
+  localStorage.setItem(KEYS.VENUES, JSON.stringify(venues));
+}
+
+export function updateStoredVenue(id: string, patch: Partial<VenueInfo>): VenueInfo | null {
+  const venues = getStoredVenues();
+  const idx = venues.findIndex((v) => v.id === id);
+  if (idx === -1) return null;
+  venues[idx] = { ...venues[idx], ...patch };
+  saveStoredVenues(venues);
+  return venues[idx];
+}
+
+export function addStoredVenue(venue: VenueInfo): void {
+  const venues = getStoredVenues();
+  venues.push(venue);
+  saveStoredVenues(venues);
+}
+
+export function resetStoredVenues(): void {
+  saveStoredVenues(DEFAULT_VENUES);
 }

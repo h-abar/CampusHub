@@ -173,6 +173,24 @@ export default function ServiceForm({
       requesterType: formData.requesterType,
       externalEntity: formData.externalEntity,
       additionalNotes: formData.additionalNotes?.trim(),
+      // ===== الحقول الموسّعة =====
+      venueEventType: formData.venueEventType,
+      newsDate: formData.newsDate,
+      publishingChannels: formData.publishingChannels,
+      designLanguage: formData.designLanguage,
+      targetAudience: formData.targetAudience,
+      designCategory: formData.designCategory,
+      designLinks: formData.designLinks?.trim(),
+      designLogos: formData.designLogos,
+      workshopAttachments: formData.workshopAttachments,
+      designBrief: formData.designBrief?.trim(),
+      otherEventType: formData.otherEventType?.trim(),
+      needsVenueBooking: formData.needsVenueBooking,
+      needsDocumentation: formData.needsDocumentation,
+      documentationType: formData.documentationType,
+      supportServices: formData.supportServices,
+      expectedVisitors: formData.expectedVisitors,
+      visitorGender: formData.visitorGender,
     };
 
     addStoredRequest(newRequest);

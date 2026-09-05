@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   ClipboardList,
   Eye,
+  FileText,
   PlayCircle,
   Power,
   Search,
@@ -27,14 +28,15 @@ import {
   addStoredAdmin,
   updateStoredAdmin,
   deleteStoredAdmin,
+  getStoredVenues,
 } from '../utils/storage';
 import { formatDate, formatDateRange } from '../utils/dateUtils';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
 import StatsCard from '../components/StatsCard';
-import type { RequestStatus, ServiceRequest, SystemSettings } from '../types';
+import ElectronicContractModal from '../components/ElectronicContractModal';
+import type { RequestStatus, ServiceRequest, SystemSettings, VenueInfo } from '../types';
 import type { StoredAdmin } from '../types/auth';
-import { DEFAULT_VENUES } from '../data/defaults';
 import { normalizeDateRange, addDaysISO, todayISO } from '../utils/dateUtils';
 
 type Tab = 'overview' | 'requests' | 'venues' | 'admins' | 'settings';
@@ -53,7 +55,10 @@ export default function Dashboard() {
   const [note, setNote] = useState('');
   const [savedFlash, setSavedFlash] = useState(false);
   const [admins, setAdmins] = useState<StoredAdmin[]>(() => getStoredAdmins());
+  const [dashboardVenues] = useState<VenueInfo[]>(() => getStoredVenues());
+  const [venueCategoryFilter, setVenueCategoryFilter] = useState<string>('all');
   const [adminModalOpen, setAdminModalOpen] = useState(false);
+  const [contractModalRequest, setContractModalRequest] = useState<ServiceRequest | null>(null);
   const [adminForm, setAdminForm] = useState({ name: '', username: '', email: '', password: '', department: '' });
   const [adminError, setAdminError] = useState('');
 
@@ -215,15 +220,19 @@ export default function Dashboard() {
   }, []);
 
   const venueBookings = useMemo(() => {
-    const map: Record<string, Set<string>> = {
-      theater: new Set(),
-      lobby: new Set(),
-      b2: new Set(),
-    };
+    const map: Record<string, Set<string>> = {};
+    for (const v of dashboardVenues) {
+      map[v.id] = new Set();
+    }
+    map['theater'] = map['theater'] || new Set();
+    map['lobby'] = map['lobby'] || new Set();
+    map['b2'] = map['b2'] || new Set();
+
     for (const req of requests) {
       if (!req.venues?.length) continue;
       if (req.status === 'rejected' || req.status === 'cancelled') continue;
       for (const v of req.venues) {
+        if (!map[v]) map[v] = new Set();
         for (const raw of req.eventDates || []) {
           const dr = normalizeDateRange(raw);
           if (dr.date) map[v]?.add(dr.date);
@@ -231,7 +240,7 @@ export default function Dashboard() {
       }
     }
     return map;
-  }, [requests]);
+  }, [dashboardVenues, requests]);
 
   const saveSettings = () => {
     saveSystemSettings(settings);
@@ -476,44 +485,82 @@ export default function Dashboard() {
 
       {/* Venues */}
       {tab === 'venues' && (
-        <div className="card-static overflow-x-auto">
-          <h3 className="font-bold text-primary-900 mb-4">{t('venues.availability')}</h3>
-          <table className="min-w-full text-sm">
-            <thead>
-              <tr className="bg-slate-50">
-                <th className="p-3">—</th>
-                {days.map((d) => (
-                  <th key={d} className="p-2 text-xs text-slate-500 whitespace-nowrap">
-                    {formatDate(d, language)}
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div className="title-rule">
+                <h2 className="section-title !mb-0 !text-xl">{t('venues.availability')}</h2>
+              </div>
+              <p className="text-ink-500 font-naskh text-sm">
+                {language === 'ar' ? 'إدارة ومتابعة إشغال القاعات والمرافق (13 مرفقاً)' : 'Monitor facility occupancy (13 venues)'}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <select
+                value={venueCategoryFilter}
+                onChange={(e) => setVenueCategoryFilter(e.target.value)}
+                className="input-field !py-2 !px-3 text-xs bg-white font-semibold"
+              >
+                <option value="all">{language === 'ar' ? 'جميع المرافق (13)' : 'All Facilities (13)'}</option>
+                <option value="auditorium">{language === 'ar' ? 'المسارح الكبرى' : 'Auditoriums'}</option>
+                <option value="exhibition">{language === 'ar' ? 'المعارض والبهو' : 'Exhibition'}</option>
+                <option value="vip">{language === 'ar' ? 'أجنحة VIP' : 'VIP'}</option>
+                <option value="tiered">{language === 'ar' ? 'القاعات المدرجة' : 'Tiered'}</option>
+                <option value="workshop">{language === 'ar' ? 'ورش العمل' : 'Workshops'}</option>
+                <option value="meeting">{language === 'ar' ? 'قاعات الاجتماعات' : 'Meetings'}</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="card-static overflow-x-auto bg-white border border-[var(--line)] rounded-xl shadow-xs">
+            <table className="min-w-full text-xs">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-200">
+                  <th className="p-3 text-start font-bold text-slate-700 min-w-[190px] sticky start-0 bg-slate-50 z-10 border-e border-slate-200">
+                    {language === 'ar' ? 'المرفق / القاعة' : 'Venue / Hall'}
                   </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {DEFAULT_VENUES.map((v) => (
-                <tr key={v.id} className="border-t">
-                  <td className="p-3 font-semibold whitespace-nowrap">
-                    {language === 'ar' ? v.nameAr : v.nameEn}
-                  </td>
-                  {days.map((d) => {
-                    const booked = venueBookings[v.id]?.has(d);
-                    return (
-                      <td key={d} className="p-1 text-center">
-                        <span
-                          className={`inline-block w-full py-1 rounded text-[10px] font-bold ${
-                            booked ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'
-                          }`}
-                        >
-                          {booked ? t('venues.booked') : t('venues.available')}
-                        </span>
-                      </td>
-                    );
-                  })}
+                  {days.map((d) => (
+                    <th key={d} className="p-2 text-center text-slate-600 whitespace-nowrap min-w-[70px]">
+                      {formatDate(d, language)}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <p className="text-xs text-slate-400 mt-3">{t('venues.legend')}</p>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {dashboardVenues
+                  .filter((v) => venueCategoryFilter === 'all' || v.category === venueCategoryFilter)
+                  .map((v) => (
+                    <tr key={v.id} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="p-2.5 font-semibold text-slate-800 sticky start-0 bg-white border-e border-slate-200 z-10">
+                        <div className="font-bold text-ink-900">{language === 'ar' ? v.nameAr : v.nameEn}</div>
+                        <div className="text-[10px] text-slate-400 font-normal">{v.capacity} {t('venues.persons')} · {v.location}</div>
+                      </td>
+                      {days.map((d) => {
+                        const booked = venueBookings[v.id]?.has(d);
+                        return (
+                          <td key={d} className="p-1 text-center">
+                            <span
+                              className={`inline-block w-full py-1.5 px-1 rounded text-[10px] font-bold ${
+                                booked
+                                  ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                                  : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              }`}
+                            >
+                              {booked ? t('venues.booked') : t('venues.available')}
+                            </span>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+            <div className="p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+              <span>{t('venues.legend')}</span>
+              <span>{t('venues.next14')}</span>
+            </div>
+          </div>
         </div>
       )}
 
@@ -927,7 +974,7 @@ export default function Dashboard() {
               />
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 items-center">
               {selected.status === 'pending' && (
                 <>
                   <button className="btn-primary" onClick={() => changeStatus(selected.id, 'approved', note)}>
@@ -949,6 +996,15 @@ export default function Dashboard() {
               {selected.status === 'in_progress' && (
                 <button className="btn-primary" onClick={() => changeStatus(selected.id, 'completed', note)}>
                   {t('dashboard.complete')}
+                </button>
+              )}
+              {(selected.serviceType === 'theater' || (selected.venues && selected.venues.length > 0)) && (
+                <button
+                  className="px-3 py-2 bg-secondary-50 text-secondary-900 border border-secondary/30 rounded-md text-sm font-semibold flex items-center gap-1.5 hover:bg-secondary-100 transition-colors"
+                  onClick={() => setContractModalRequest(selected)}
+                >
+                  <FileText className="w-4 h-4 text-secondary-700" />
+                  <span>{language === 'ar' ? 'عرض / طباعة العقد الإلكتروني' : 'View / Print Contract'}</span>
                 </button>
               )}
               <button className="btn-ghost" onClick={() => setSelected(null)}>
@@ -1035,6 +1091,13 @@ export default function Dashboard() {
           </div>
         </form>
       </Modal>
+
+      {/* Electronic Contract Modal */}
+      <ElectronicContractModal
+        isOpen={!!contractModalRequest}
+        onClose={() => setContractModalRequest(null)}
+        request={contractModalRequest}
+      />
     </div>
   );
 }
