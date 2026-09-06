@@ -9,7 +9,7 @@ const LOGO = '/img/logo-um.png';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   `relative px-3 py-2 text-sm font-medium transition-colors ${
-    isActive ? 'text-primary' : 'text-ink-700 hover:text-primary'
+    isActive ? 'text-primary-700' : 'text-ink-700 hover:text-primary-700'
   }`;
 
 export default function Header() {
@@ -61,7 +61,7 @@ export default function Header() {
                 }}
               />
               <div className="hidden sm:block min-w-0 border-s border-[var(--line)] ps-3">
-                <div className="text-[0.95rem] md:text-base font-semibold text-ink leading-tight truncate group-hover:text-primary transition-colors">
+                <div className="text-[0.95rem] md:text-base font-semibold text-ink leading-tight truncate group-hover:text-primary-700 transition-colors">
                   {t('app.title')}
                 </div>
                 <div className="text-[11px] text-ink-400 mt-0.5 truncate">
@@ -94,7 +94,7 @@ export default function Header() {
                     {t('nav.dashboard')}
                   </Link>
                   <div className="flex items-center gap-2 px-2.5 py-1.5 border border-[var(--line)] text-sm text-ink-600 bg-ink-50">
-                    <User className="w-4 h-4 text-primary" />
+                    <User className="w-4 h-4 text-primary-700" />
                     <span>{user.name || user.username}</span>
                   </div>
                   <button onClick={handleLogout} className="btn-ghost text-sm !text-red-700 hover:!bg-red-50">
@@ -129,7 +129,7 @@ export default function Header() {
                     onClick={() => setIsMenuOpen(false)}
                     className={({ isActive }) =>
                       `px-3 py-2.5 text-sm font-medium rounded-md ${
-                        isActive ? 'bg-primary-50 text-primary' : 'text-ink-700 hover:bg-ink-50'
+                        isActive ? 'bg-primary-100 text-primary-800' : 'text-ink-700 hover:bg-ink-50'
                       }`
                     }
                   >

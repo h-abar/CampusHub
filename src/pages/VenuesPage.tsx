@@ -474,7 +474,7 @@ export default function VenuesPage() {
             }}
             className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
               selectedCategory === 'all'
-                ? 'bg-primary text-white'
+                ? 'bg-primary-700 text-white'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
@@ -488,7 +488,7 @@ export default function VenuesPage() {
                 onClick={() => setSelectedCategory(catKey)}
                 className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
                   selectedCategory === catKey
-                    ? 'bg-primary text-white'
+                    ? 'bg-primary-700 text-white'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
@@ -506,7 +506,7 @@ export default function VenuesPage() {
             {/* Header of Table */}
             <div className="p-4 sm:p-5 border-b border-[var(--line)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary-700">
                   <CalendarDays className="w-5 h-5" />
                 </div>
                 <div>
@@ -646,7 +646,7 @@ export default function VenuesPage() {
                               <button
                                 type="button"
                                 onClick={() => handleOpenQuickBooking(venue, d)}
-                                className="w-full h-full min-h-[58px] py-2 px-1.5 rounded-lg text-[11px] font-bold bg-emerald-50/60 text-emerald-800 border border-emerald-200/80 hover:bg-emerald-600 hover:text-white transition-all flex flex-col items-center justify-center gap-0.5 group"
+                                className="w-full h-full min-h-[58px] py-2 px-1.5 rounded-lg text-[11px] font-bold bg-emerald-50/60 text-emerald-800 border border-emerald-200/80 hover:bg-emerald-700 hover:text-white transition-all flex flex-col items-center justify-center gap-0.5 group"
                               >
                                 <span className="flex items-center gap-1 text-emerald-700 group-hover:text-white">
                                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 group-hover:bg-white" />
@@ -747,7 +747,7 @@ export default function VenuesPage() {
                   <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                     <div className="space-y-2.5">
                       <div className="flex items-center gap-2 text-xs text-slate-500">
-                        <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
+                        <MapPin className="w-3.5 h-3.5 text-primary-700 shrink-0" />
                         <span>{venue.location}</span>
                       </div>
 
@@ -765,7 +765,7 @@ export default function VenuesPage() {
 
                       {/* Amenities Pills */}
                       <div>
-                        <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                        <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
                           {isAr ? 'التجهيزات المعتمدة:' : 'Amenities:'}
                         </div>
                         <div className="flex flex-wrap gap-1">
@@ -828,7 +828,7 @@ export default function VenuesPage() {
               </div>
               <button
                 onClick={() => setInspectedBooking(null)}
-                className="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded-md"
+                className="p-1.5 text-white hover:bg-white/20 rounded-md"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -839,7 +839,7 @@ export default function VenuesPage() {
               <div className="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200">
                 <div>
                   <div className="text-[11px] text-slate-400 font-sans">{isAr ? 'رقم التتبع والتوثيق' : 'Tracking ID'}</div>
-                  <div className="font-mono font-bold text-primary text-sm">{inspectedBooking.request.trackingCode}</div>
+                  <div className="font-mono font-bold text-primary-700 text-sm">{inspectedBooking.request.trackingCode}</div>
                 </div>
                 <div>
                   {(() => {
@@ -888,7 +888,7 @@ export default function VenuesPage() {
                   <div className="font-bold text-xs text-ink-900 font-mono">
                     {inspectedBooking.date}
                   </div>
-                  <div className="text-[11px] text-primary font-bold font-mono mt-0.5" dir="ltr">
+                  <div className="text-[11px] text-primary-700 font-bold font-mono mt-0.5" dir="ltr">
                     {inspectedBooking.request.eventDates?.[0]?.startTime || '08:30'} - {inspectedBooking.request.eventDates?.[0]?.endTime || '13:30'}
                   </div>
                 </div>
@@ -955,7 +955,7 @@ export default function VenuesPage() {
               </div>
               <button
                 onClick={() => setQuickBookingSlot(null)}
-                className="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded-md"
+                className="p-1.5 text-white hover:bg-white/20 rounded-md"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1021,7 +1021,7 @@ export default function VenuesPage() {
                       }
                       className={`p-2 text-xs font-bold rounded-lg border text-center transition-colors ${
                         quickForm.requesterType === 'internal'
-                          ? 'bg-primary-50 border-primary text-primary'
+                          ? 'bg-primary-50 border-primary text-primary-800'
                           : 'bg-slate-50 border-slate-200 text-slate-600'
                       }`}
                     >
@@ -1038,7 +1038,7 @@ export default function VenuesPage() {
                       }
                       className={`p-2 text-xs font-bold rounded-lg border text-center transition-colors ${
                         quickForm.requesterType === 'external'
-                          ? 'bg-primary-50 border-primary text-primary'
+                          ? 'bg-primary-50 border-primary text-primary-800'
                           : 'bg-slate-50 border-slate-200 text-slate-600'
                       }`}
                     >
@@ -1198,7 +1198,7 @@ export default function VenuesPage() {
               </div>
               <button
                 onClick={() => setDetailVenue(null)}
-                className="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded-md"
+                className="p-1.5 text-white hover:bg-white/20 rounded-md"
               >
                 ✕
               </button>

@@ -55,7 +55,7 @@ export default function ElectronicContractModal({
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-fadeIn print:p-0 print:bg-white">
       <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full border border-[var(--line)] overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none">
         {/* Modal Header */}
-        <div className="px-6 py-4 bg-gradient-to-r from-ink to-primary text-white flex items-center justify-between print:hidden">
+        <div className="px-6 py-4 bg-gradient-to-r from-ink to-primary-800 text-white flex items-center justify-between print:hidden">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center border border-white/20">
               <FileText className="w-5 h-5 text-secondary-300" />
@@ -64,7 +64,7 @@ export default function ElectronicContractModal({
               <h3 className="font-bold text-base md:text-lg">
                 {isAr ? 'العقد الإلكتروني الموحد لتأجير مرافق المركز' : 'Unified Facility Rental E-Contract'}
               </h3>
-              <p className="text-xs text-white/70">
+              <p className="text-xs text-white/90">
                 {isAr ? 'مركز مؤتمرات وأعمال الدرعية — جامعة المعرفة' : 'Diriyah Conferences & Business Center — Almaarefa University'}
               </p>
             </div>
@@ -72,14 +72,14 @@ export default function ElectronicContractModal({
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="px-3 py-1.5 bg-white/15 hover:bg-white/25 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors"
+              className="px-3 py-1.5 bg-white/90 hover:bg-white rounded-md text-xs font-semibold text-ink flex items-center gap-1.5 transition-colors"
             >
               <Printer className="w-4 h-4" />
               <span>{isAr ? 'طباعة / حفظ PDF' : 'Print / PDF'}</span>
             </button>
             <button
               onClick={onClose}
-              className="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded-md transition-colors"
+              className="p-1.5 text-white hover:bg-white/20 rounded-md transition-colors"
               aria-label="Close"
             >
               <X className="w-5 h-5" />
@@ -121,7 +121,7 @@ export default function ElectronicContractModal({
           {/* Clause 1: Subject & Venue */}
           <div>
             <h4 className="font-bold text-primary-900 text-sm mb-2 flex items-center gap-2 font-sans">
-              <Building className="w-4 h-4 text-secondary" />
+              <Building className="w-4 h-4 text-secondary-700" />
               البند الأول: موضوع العقد والمرافق المؤجرة
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3 rounded-lg border border-slate-100 text-xs">
@@ -135,12 +135,12 @@ export default function ElectronicContractModal({
           {/* Clause 2: Financial Obligations */}
           <div>
             <h4 className="font-bold text-primary-900 text-sm mb-2 flex items-center gap-2 font-sans">
-              <DollarSign className="w-4 h-4 text-secondary" />
+              <DollarSign className="w-4 h-4 text-secondary-700" />
               البند الثاني: المقابل المالي وآلية السداد
             </h4>
             <p className="text-xs text-slate-700 mb-2">
               يلتزم الطرف الثاني بسداد المقابل المالي الإجمالي المعتمد والبالغ قدره:
-              <strong className="text-primary font-bold text-sm px-2">{data.totalAmount.toLocaleString('ar-SA')} ر.س</strong>
+              <strong className="text-primary-700 font-bold text-sm px-2">{data.totalAmount.toLocaleString('ar-SA')} ر.س</strong>
               (شاملاً ضريبة القيمة المضافة 15% والتجهيزات الفنية الأساسية المذكورة)، وذلك عبر بوابة الدفع الإلكتروني المعتمدة أو التحويل للحساب البنكي الرسمي للجامعة قبل موعد الفعالية بـ 7 أيام عمل على الأقل.
             </p>
           </div>
@@ -148,7 +148,7 @@ export default function ElectronicContractModal({
           {/* Clause 3: Technical & Operational Terms */}
           <div>
             <h4 className="font-bold text-primary-900 text-sm mb-2 flex items-center gap-2 font-sans">
-              <Shield className="w-4 h-4 text-secondary" />
+              <Shield className="w-4 h-4 text-secondary-700" />
               البند الثالث: التزامات التشغيل والدعم الفني
             </h4>
             <ul className="list-disc list-inside space-y-1 text-xs text-slate-600 ps-1">
@@ -190,7 +190,7 @@ export default function ElectronicContractModal({
         {/* Modal Footer */}
         <div className="px-6 py-3.5 bg-slate-50 border-t border-[var(--line)] flex items-center justify-between print:hidden">
           <div className="text-xs text-slate-500 flex items-center gap-1.5">
-            <Shield className="w-4 h-4 text-secondary" />
+            <Shield className="w-4 h-4 text-secondary-700" />
             <span>عقد رقمي موثق خاضع للائحة استثمار مرافق جامعة المعرفة</span>
           </div>
           <div className="flex items-center gap-2">

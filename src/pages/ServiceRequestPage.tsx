@@ -168,7 +168,7 @@ export default function ServiceRequestPage() {
           to="/track"
           className="card flex items-center gap-4 hover:border-primary !p-5"
         >
-          <div className="w-12 h-12 rounded-xl bg-primary-50 text-primary flex items-center justify-center">
+          <div className="w-12 h-12 rounded-xl bg-primary-50 text-primary-700 flex items-center justify-center">
             <Search className="w-6 h-6" />
           </div>
           <div>

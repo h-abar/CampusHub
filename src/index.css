@@ -64,26 +64,26 @@
 @layer components {
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2
-           bg-primary hover:bg-primary-600 active:bg-primary-700
+           bg-primary-700 hover:bg-primary-800 active:bg-primary-900
            text-white font-medium px-6 py-2.5 rounded-md
-           border border-primary-600
+           border border-primary-800
            transition-colors duration-150
            disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2
-           bg-secondary hover:bg-secondary-600
+           bg-secondary-700 hover:bg-secondary-800 active:bg-secondary-900
            text-white font-medium px-6 py-2.5 rounded-md
-           border border-secondary-600
+           border border-secondary-800
            transition-colors duration-150
            disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-outline {
     @apply inline-flex items-center justify-center gap-2
-           border border-primary text-primary bg-white
-           hover:bg-primary hover:text-white
+           border border-primary-700 text-primary-800 bg-white
+           hover:bg-primary-50 hover:text-primary-900
            font-medium px-6 py-2.5 rounded-md
            transition-colors duration-150;
   }
@@ -96,7 +96,7 @@
   }
 
   .btn-ghost:hover {
-    color: var(--primary);
+    color: var(--primary-dark);
     background-color: #e8f8fb;
   }
 
@@ -139,7 +139,7 @@
   }
 
   .input-field::placeholder {
-    color: var(--ink-300);
+    color: var(--ink-400);
   }
 
   .input-field:focus {
@@ -621,9 +621,9 @@
 }
 
 .hero-arrow:hover {
-  background: var(--primary);
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(0, 173, 202, 0.25), 0 10px 24px -8px rgba(0, 173, 202, 0.6);
+  background: var(--primary-dark);
+  border-color: var(--primary-dark);
+  box-shadow: 0 0 0 4px rgba(0, 105, 123, 0.25), 0 10px 24px -8px rgba(0, 105, 123, 0.6);
 }
 
 /* Progress dots */

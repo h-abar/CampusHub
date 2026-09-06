@@ -548,7 +548,7 @@ export default function DiriyahCenterPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-12 gap-10 items-center">
             <div className="lg:col-span-6 space-y-5">
-              <div className="inline-flex items-center gap-2 text-primary font-semibold text-xs tracking-wider uppercase">
+              <div className="inline-flex items-center gap-2 text-primary-700 font-semibold text-xs tracking-wider uppercase">
                 <span className="geo-diamond" />
                 <span>{isAr ? 'عن مركز مؤتمرات وأعمال الدرعية' : 'About Diriyah Center'}</span>
               </div>
@@ -594,7 +594,7 @@ export default function DiriyahCenterPage() {
                 <div className="absolute bottom-4 start-4 end-4 p-4 bg-white/90 backdrop-blur-md rounded-xl border border-white/40 flex items-center justify-between">
                   <div>
                     <div className="font-bold text-ink-900 text-sm">{isAr ? 'المسرح الرئيسي وقاعة المؤتمرات' : 'Grand Auditorium & Stage'}</div>
-                    <div className="text-xs text-primary font-medium">{isAr ? 'سعة 520 مقعد · مجهز بالكامل' : '520 Seats · Full Tech Suite'}</div>
+                    <div className="text-xs text-primary-700 font-medium">{isAr ? 'سعة 520 مقعد · مجهز بالكامل' : '520 Seats · Full Tech Suite'}</div>
                   </div>
                   <Link
                     to="/services?service=theater&venue=theater"
@@ -613,7 +613,7 @@ export default function DiriyahCenterPage() {
       <section className="py-16 bg-slate-50 border-b border-[var(--line)]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <div className="inline-flex items-center gap-2 text-primary font-semibold text-xs tracking-wider uppercase mb-2">
+            <div className="inline-flex items-center gap-2 text-primary-700 font-semibold text-xs tracking-wider uppercase mb-2">
               <Building2 className="w-4 h-4" />
               <span>{isAr ? 'المرافق والقاعات والمواصفات الفنية' : 'Facilities & Technical Specs'}</span>
             </div>
@@ -659,12 +659,12 @@ export default function DiriyahCenterPage() {
 
                   {/* Highlights list */}
                   <div className="space-y-1.5 pt-2 border-t border-slate-100">
-                    <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                    <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                       {isAr ? 'أبرز المواصفات الفنية' : 'Key Tech Features'}
                     </div>
                     {(isAr ? v.specs.ar : v.specs.en).slice(0, 3).map((spec, i) => (
                       <div key={i} className="flex items-start gap-1.5 text-xs text-ink-700">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-secondary shrink-0 mt-0.5" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-secondary-700 shrink-0 mt-0.5" />
                         <span className="line-clamp-1">{spec}</span>
                       </div>
                     ))}
@@ -699,8 +699,8 @@ export default function DiriyahCenterPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
             <div>
-              <div className="inline-flex items-center gap-2 text-primary font-semibold text-xs tracking-wider uppercase mb-1">
-                <Sparkles className="w-4 h-4 text-secondary" />
+              <div className="inline-flex items-center gap-2 text-primary-700 font-semibold text-xs tracking-wider uppercase mb-1">
+                <Sparkles className="w-4 h-4 text-secondary-700" />
                 <span>{isAr ? 'مكتبة الوسائط والصور' : 'Media Gallery'}</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-ink-900">
@@ -724,7 +724,7 @@ export default function DiriyahCenterPage() {
                   onClick={() => setGalleryCategory(c.id)}
                   className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                     galleryCategory === c.id
-                      ? 'bg-primary text-white shadow-xs'
+                      ? 'bg-primary-700 text-white shadow-xs'
                       : 'bg-slate-100 text-ink-600 hover:bg-slate-200'
                   }`}
                 >
@@ -766,8 +766,8 @@ export default function DiriyahCenterPage() {
       <section id="calculator" className="py-16 bg-slate-50 border-b border-[var(--line)] scroll-mt-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <div className="inline-flex items-center gap-2 text-primary font-semibold text-xs tracking-wider uppercase mb-2">
-              <DollarSign className="w-4 h-4 text-secondary" />
+            <div className="inline-flex items-center gap-2 text-primary-700 font-semibold text-xs tracking-wider uppercase mb-2">
+              <DollarSign className="w-4 h-4 text-secondary-700" />
               <span>{isAr ? 'باقات التأجير وحاسبة التكلفة الفورية' : 'Packages & Live Pricing Estimator'}</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-ink-900">
@@ -791,7 +791,7 @@ export default function DiriyahCenterPage() {
               >
                 {pkg.badgeAr && (
                   <div className="absolute -top-3 start-6">
-                    <span className="px-3 py-1 bg-secondary text-white text-xs font-bold rounded-full uppercase tracking-wider shadow-xs">
+                    <span className="px-3 py-1 bg-secondary-700 text-white text-xs font-bold rounded-full uppercase tracking-wider shadow-xs">
                       {isAr ? pkg.badgeAr : pkg.badgeEn}
                     </span>
                   </div>
@@ -806,7 +806,7 @@ export default function DiriyahCenterPage() {
                   </p>
                   <div className="mb-6 p-3 bg-primary-50/50 rounded-lg border border-primary/20 flex items-baseline gap-1">
                     <span className="text-xs text-slate-500">{isAr ? 'تبدأ من:' : 'From:'}</span>
-                    <span className="text-2xl font-bold text-primary font-mono">
+                    <span className="text-2xl font-bold text-primary-700 font-mono">
                       {pkg.basePrice.toLocaleString('ar-SA')}
                     </span>
                     <span className="text-xs text-primary-700 font-semibold">{isAr ? 'ر.س' : 'SAR'}</span>
@@ -875,7 +875,7 @@ export default function DiriyahCenterPage() {
                         onClick={() => setCalcVenue(item.id)}
                         className={`p-3 text-xs font-semibold rounded-lg border text-start transition-all ${
                           calcVenue === item.id
-                            ? 'border-primary bg-primary-50/50 text-primary ring-1 ring-primary'
+                            ? 'border-primary bg-primary-50/50 text-primary-800 ring-1 ring-primary'
                             : 'border-slate-200 bg-white text-ink-700 hover:border-slate-300'
                         }`}
                       >
@@ -947,7 +947,7 @@ export default function DiriyahCenterPage() {
                         onClick={() => setCalcEntity(ent.id)}
                         className={`p-2.5 text-xs font-semibold rounded-lg border text-start transition-all ${
                           calcEntity === ent.id
-                            ? 'border-primary bg-primary-50/50 text-primary ring-1 ring-primary'
+                            ? 'border-primary bg-primary-50/50 text-primary-800 ring-1 ring-primary'
                             : 'border-slate-200 bg-white text-ink-700 hover:border-slate-300'
                         }`}
                       >
@@ -1046,7 +1046,7 @@ export default function DiriyahCenterPage() {
                     <div className="pt-3 border-t-2 border-slate-300 flex justify-between items-baseline">
                       <span className="font-bold text-sm text-ink-900">{isAr ? 'المجموع الإجمالي التقديري:' : 'Total Estimated Cost:'}</span>
                       <div className="text-end">
-                        <div className="text-2xl font-extrabold text-primary font-mono">
+                        <div className="text-2xl font-extrabold text-primary-700 font-mono">
                           {calculatedTotal.total.toLocaleString('ar-SA')} <span className="text-xs font-normal">ر.س</span>
                         </div>
                       </div>
@@ -1060,7 +1060,7 @@ export default function DiriyahCenterPage() {
                     onClick={() => setContractModalOpen(true)}
                     className="w-full py-2.5 px-3 bg-secondary/10 hover:bg-secondary/20 text-secondary-900 text-xs font-bold rounded-lg border border-secondary/30 flex items-center justify-center gap-2 transition-colors"
                   >
-                    <FileText className="w-4 h-4 text-secondary" />
+                    <FileText className="w-4 h-4 text-secondary-700" />
                     <span>{isAr ? 'استعراض مسودة العقد الإلكتروني الموحد' : 'View E-Contract Draft'}</span>
                   </button>
 
@@ -1083,8 +1083,8 @@ export default function DiriyahCenterPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
             <div>
-              <div className="inline-flex items-center gap-2 text-primary font-semibold text-xs tracking-wider uppercase mb-1">
-                <Calendar className="w-4 h-4 text-secondary" />
+              <div className="inline-flex items-center gap-2 text-primary-700 font-semibold text-xs tracking-wider uppercase mb-1">
+                <Calendar className="w-4 h-4 text-secondary-700" />
                 <span>{isAr ? 'أخبار وفعاليات المركز' : 'Center Events & News'}</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-ink-900">
@@ -1253,7 +1253,7 @@ export default function DiriyahCenterPage() {
           <div className="relative max-w-4xl w-full" onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setLightboxImage(null)}
-              className="absolute -top-10 end-0 text-white hover:text-secondary p-1"
+              className="absolute -top-10 end-0 text-white hover:text-secondary-700 p-1"
             >
               <X className="w-7 h-7" />
             </button>

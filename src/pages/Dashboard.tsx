@@ -375,8 +375,8 @@ export default function Dashboard() {
                   onClick={() => setMineOnly((v) => !v)}
                   className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border whitespace-nowrap transition-all duration-150 ${
                     mineOnly
-                      ? 'bg-primary text-white border-primary shadow-brand'
-                      : 'bg-white text-ink-600 border-[var(--line)] hover:border-primary hover:text-primary'
+                      ? 'bg-primary-700 text-white border-primary-700 shadow-brand'
+                      : 'bg-white text-ink-600 border-[var(--line)] hover:border-primary-700 hover:text-primary-700'
                   }`}
                   title={t('dashboard.filter.mine')}
                 >
@@ -981,7 +981,7 @@ export default function Dashboard() {
                     {t('dashboard.approve')}
                   </button>
                   <button
-                    className="btn-outline !border-rose-400 !text-rose-600 hover:!bg-rose-500 hover:!text-white"
+                    className="btn-outline !border-rose-400 !text-rose-600 hover:!bg-rose-700 hover:!text-white"
                     onClick={() => changeStatus(selected.id, 'rejected', note)}
                   >
                     {t('dashboard.reject')}

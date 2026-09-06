@@ -149,7 +149,7 @@ export default function EventForm({ formData, setFormData }: Props) {
                       {language === 'ar' ? v.nameAr : v.nameEn}
                     </span>
                     {selected && (
-                      <span className="w-4 h-4 rounded-full bg-primary text-white flex items-center justify-center shrink-0">
+                      <span className="w-4 h-4 rounded-full bg-primary-700 text-white flex items-center justify-center shrink-0">
                         <Check className="w-2.5 h-2.5" />
                       </span>
                     )}

@@ -95,7 +95,7 @@ export default function TheaterForm({
               onClick={() => setFormData({ ...formData, venueEventType: et })}
               className={`px-3 py-1.5 text-xs rounded-md transition-colors ${
                 formData.venueEventType === et
-                  ? 'bg-primary text-white font-bold'
+                  ? 'bg-primary-700 text-white font-bold'
                   : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
               }`}
             >
@@ -145,7 +145,7 @@ export default function TheaterForm({
               onClick={() => setCategoryFilter(c.id)}
               className={`px-2.5 py-1 text-xs rounded-md transition-colors ${
                 categoryFilter === c.id
-                  ? 'bg-primary text-white font-bold'
+                  ? 'bg-primary-700 text-white font-bold'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
@@ -176,7 +176,7 @@ export default function TheaterForm({
                     {language === 'ar' ? v.nameAr : v.nameEn}
                   </div>
                   {selected && (
-                    <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center shrink-0">
+                    <span className="w-5 h-5 rounded-full bg-primary-700 text-white flex items-center justify-center shrink-0">
                       <Check className="w-3 h-3" />
                     </span>
                   )}

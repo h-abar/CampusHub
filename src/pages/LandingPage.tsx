@@ -86,7 +86,7 @@ export default function LandingPage() {
                       'linear-gradient(to top, rgba(11,44,53,0.85) 0%, rgba(11,44,53,0.2) 100%)',
                   }}
                 />
-                <div className="absolute bottom-3 start-3 w-9 h-9 bg-white/95 flex items-center justify-center text-primary border border-white/40">
+                <div className="absolute bottom-3 start-3 w-9 h-9 bg-white/95 flex items-center justify-center text-primary-700 border border-white/40">
                   <f.icon className="w-4 h-4" />
                 </div>
               </div>
@@ -199,7 +199,7 @@ export default function LandingPage() {
                       i < steps.length - 1 ? 'border-b border-[var(--line)]' : ''
                     }`}
                   >
-                    <div className="text-2xl font-semibold text-primary/25 leading-none min-w-[2.5rem]">
+                    <div className="text-2xl font-semibold text-primary-700/40 leading-none min-w-[2.5rem]">
                       {s.n}
                     </div>
                     <div>
@@ -244,7 +244,7 @@ export default function LandingPage() {
             </p>
             <Link
               to="/services"
-              className="inline-flex items-center gap-2 bg-secondary hover:bg-secondary-600 text-white font-medium px-6 py-3 rounded-md transition-colors"
+              className="inline-flex items-center gap-2 bg-secondary-700 hover:bg-secondary-800 text-white font-medium px-6 py-3 rounded-md transition-colors"
             >
               {t('landing.cta.button')}
               <Arrow className="w-5 h-5" />

@@ -220,7 +220,7 @@ export default function HeroSlider() {
           </div>
 
           <p
-            className="hero-anim text-base md:text-lg text-white/82 leading-8 mb-9 max-w-xl font-naskh"
+            className="hero-anim text-base md:text-lg text-white/80 leading-8 mb-9 max-w-xl font-naskh"
             style={{ animationDelay: '220ms' }}
           >
             {t(slide.subtitleKey)}
@@ -243,7 +243,7 @@ export default function HeroSlider() {
             <Link
               to="/venues"
               className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-md
-                         text-white/85 hover:text-white font-medium transition-colors"
+                         text-white/80 hover:text-white font-medium transition-colors"
             >
               <Building2 className="w-5 h-5" />
               {t('landing.hero.cta.venues')}
