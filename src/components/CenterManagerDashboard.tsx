@@ -14,8 +14,10 @@ import {
   Flame,
   Inbox,
   Landmark,
+  MessageSquareText,
   PlayCircle,
   Search,
+  SlidersHorizontal,
   Star,
   X,
   XCircle,
@@ -23,8 +25,10 @@ import {
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import {
+  countUnreadMessages,
   getStoredRequests,
   getStoredVenues,
+  sendRequestMessage,
   updateStoredRequest,
 } from '../utils/storage';
 import {
@@ -42,9 +46,11 @@ import StatusBadge from './StatusBadge';
 import StatsCard from './StatsCard';
 import Modal from './Modal';
 import ElectronicContractModal from './ElectronicContractModal';
+import RequestMessages from './RequestMessages';
+import VenueManagementTab from './VenueManagementTab';
 import type { BookingPriority, DateRange, RequestStatus, ServiceRequest, VenueInfo } from '../types';
 
-type CenterTab = 'overview' | 'requests' | 'schedule';
+type CenterTab = 'overview' | 'requests' | 'schedule' | 'venues' | 'messages';
 
 const PRIORITY_CONFIG: Record<
   BookingPriority,
@@ -86,7 +92,7 @@ export default function CenterManagerDashboard() {
 
   const [tab, setTab] = useState<CenterTab>('overview');
   const [requests, setRequests] = useState<ServiceRequest[]>(() => getStoredRequests());
-  const [venues] = useState<VenueInfo[]>(() => getStoredVenues());
+  const [venues, setVenues] = useState<VenueInfo[]>(() => getStoredVenues());
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selected, setSelected] = useState<ServiceRequest | null>(null);
@@ -96,6 +102,7 @@ export default function CenterManagerDashboard() {
   const [scheduleOffset, setScheduleOffset] = useState(0);
 
   const reload = useCallback(() => setRequests(getStoredRequests()), []);
+  const reloadVenues = useCallback(() => setVenues(getStoredVenues()), []);
 
   const centerRequests = useMemo(() => requests.filter(isCenterRequest), [requests]);
   const conflictsMap = useMemo(() => buildConflictsMap(requests), [requests]);
@@ -157,6 +164,21 @@ export default function CenterManagerDashboard() {
       },
     ];
     updateStoredRequest(id, { status, statusHistory: history, adminNotes: adminNote || req.adminNotes });
+    // تنبيه تلقائي لمقدم الطلب داخل سلسلة الرسائل
+    const statusAr: Record<string, string> = {
+      approved: 'تم اعتماد حجزك',
+      rejected: 'تم رفض الطلب',
+      in_progress: 'حجزك قيد التنفيذ',
+      completed: 'اكتمل تنفيذ حجزك',
+      cancelled: 'تم إلغاء الحجز',
+      pending: 'أعيد طلبك للمراجعة',
+    };
+    sendRequestMessage(
+      id,
+      'system',
+      'مركز الدرعية',
+      `${isAr ? statusAr[status] || status : `Status updated: ${status}`}${adminNote ? ` — ${adminNote}` : ''}`
+    );
     reload();
     if (selected?.id === id) {
       setSelected(getStoredRequests().find((r) => r.id === id) || null);
@@ -183,6 +205,23 @@ export default function CenterManagerDashboard() {
     );
   };
 
+  const unreadMsgs = useMemo(
+    () => countUnreadMessages(centerRequests, 'manager'),
+    [centerRequests]
+  );
+
+  const conversations = useMemo(
+    () =>
+      centerRequests
+        .filter((r) => r.messages?.length)
+        .sort((a, b) => {
+          const la = a.messages![a.messages!.length - 1].at;
+          const lb = b.messages![b.messages!.length - 1].at;
+          return lb.localeCompare(la);
+        }),
+    [centerRequests]
+  );
+
   const tabs: { id: CenterTab; label: string; icon: React.ElementType; badge?: number }[] = [
     { id: 'overview', label: isAr ? 'نظرة عامة' : 'Overview', icon: BarChart3 },
     {
@@ -193,9 +232,20 @@ export default function CenterManagerDashboard() {
     },
     {
       id: 'schedule',
-      label: isAr ? 'جدول الحجوزات والتعارضات' : 'Bookings & Conflicts',
+      label: isAr ? 'جدول الحجوزات' : 'Schedule',
       icon: CalendarClock,
       badge: stats.conflicts || undefined,
+    },
+    {
+      id: 'venues',
+      label: isAr ? 'القاعات والمرافق' : 'Venues',
+      icon: SlidersHorizontal,
+    },
+    {
+      id: 'messages',
+      label: isAr ? 'الرسائل' : 'Messages',
+      icon: MessageSquareText,
+      badge: unreadMsgs || undefined,
     },
   ];
 
@@ -637,6 +687,75 @@ export default function CenterManagerDashboard() {
         </div>
       )}
 
+      {/* ======= VENUE MANAGEMENT ======= */}
+      {tab === 'venues' && <VenueManagementTab venues={venues} onChanged={reloadVenues} />}
+
+      {/* ======= MESSAGES ======= */}
+      {tab === 'messages' && (
+        <div className="card-static !p-0 overflow-hidden">
+          <div className="p-4 sm:p-5 border-b border-[var(--line)]">
+            <h2 className="text-base sm:text-lg font-bold text-ink-900 flex items-center gap-2">
+              <MessageSquareText className="w-5 h-5 text-primary-700" />
+              {isAr ? 'محادثات مقدمي الطلبات' : 'Requester Conversations'}
+            </h2>
+            <p className="text-xs text-slate-500 font-naskh">
+              {isAr
+                ? 'رسائل داخلية مرتبطة بكل طلب — افتح أي محادثة للرد على مقدم الطلب.'
+                : 'Internal threads linked to each request — open a conversation to reply.'}
+            </p>
+          </div>
+          <div className="divide-y divide-slate-100">
+            {conversations.length === 0 && (
+              <div className="p-10 text-center">
+                <MessageSquareText className="w-8 h-8 mx-auto mb-2 text-ink-300" />
+                <span className="text-ink-400 text-sm">
+                  {isAr ? 'لا توجد محادثات بعد' : 'No conversations yet'}
+                </span>
+              </div>
+            )}
+            {conversations.map((r) => {
+              const last = r.messages![r.messages!.length - 1];
+              const unread = (r.messages || []).filter(
+                (m) => m.from === 'requester' && !m.readByManager
+              ).length;
+              return (
+                <button
+                  key={r.id}
+                  onClick={() => setSelected(r)}
+                  className="w-full flex items-center gap-3 p-4 hover:bg-slate-50 text-start transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-full bg-primary-50 text-primary-700 flex items-center justify-center font-bold text-sm shrink-0">
+                    {r.requesterName?.charAt(0) || '؟'}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-ink-900 text-sm truncate">
+                        {r.requesterName}
+                      </span>
+                      <span className="font-mono text-[10px] text-slate-400" dir="ltr">
+                        {r.trackingCode}
+                      </span>
+                      {unread > 0 && (
+                        <span className="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                          {unread}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs text-slate-500 truncate mt-0.5">
+                      {last.from === 'manager' ? (isAr ? 'أنت: ' : 'You: ') : ''}
+                      {last.text}
+                    </div>
+                  </div>
+                  <div className="text-[10px] text-slate-400 shrink-0">
+                    {formatDate(last.at.split('T')[0], language)}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* ======= REQUEST DETAIL / MANAGE MODAL ======= */}
       <Modal
         isOpen={!!selected}
@@ -721,6 +840,23 @@ export default function CenterManagerDashboard() {
                   );
                 })}
               </div>
+            </div>
+
+            {/* Internal messages with requester */}
+            <div>
+              <div className="label !mb-2 flex items-center gap-1.5">
+                <MessageSquareText className="w-4 h-4 text-primary-700" />
+                {isAr ? 'مراسلة مقدم الطلب (تظهر له في صفحة التتبع)' : 'Message the requester (visible in tracking page)'}
+              </div>
+              <RequestMessages
+                request={selected}
+                viewer="manager"
+                viewerName={user?.name || (isAr ? 'إدارة المركز' : 'Center Management')}
+                onUpdated={() => {
+                  reload();
+                  setSelected(getStoredRequests().find((r) => r.id === selected.id) || null);
+                }}
+              />
             </div>
 
             <div>
@@ -863,6 +999,14 @@ function RescheduleModal({
       },
     ];
     updateStoredRequest(request.id, { eventDates: ranges, statusHistory: history });
+    sendRequestMessage(
+      request.id,
+      'system',
+      'مركز الدرعية',
+      isAr
+        ? `تم تعديل موعد حجزك إلى ${ranges.map((r) => `${r.date} ${r.startTime}-${r.endTime}`).join('، ')}${reason ? ` — السبب: ${reason}` : ''}`
+        : `Your booking was rescheduled to ${ranges.map((r) => `${r.date} ${r.startTime}-${r.endTime}`).join(', ')}${reason ? ` — Reason: ${reason}` : ''}`
+    );
     onSaved();
   };
 

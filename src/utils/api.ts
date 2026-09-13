@@ -113,5 +113,6 @@ export const syncApi = {
   deleteAdmin: (id: string) => push('DELETE', `/api/admins/${id}`),
   addVenue: (v: VenueInfo) => push('POST', '/api/venues', v),
   updateVenue: (id: string, patch: Partial<VenueInfo>) => push('PATCH', `/api/venues/${id}`, patch),
+  deleteVenue: (id: string) => push('DELETE', `/api/venues/${id}`),
   saveVenues: (venues: VenueInfo[]) => venues.forEach((v) => push('POST', '/api/venues', v)),
 };

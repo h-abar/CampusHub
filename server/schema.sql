@@ -72,9 +72,13 @@ CREATE TABLE IF NOT EXISTS requests (
   support_services      JSONB,
   expected_visitors     INTEGER,
   visitor_gender        TEXT,
+  messages              JSONB NOT NULL DEFAULT '[]',
   created_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at            TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Upgrade path for existing databases
+ALTER TABLE requests ADD COLUMN IF NOT EXISTS messages JSONB NOT NULL DEFAULT '[]';
 
 CREATE INDEX IF NOT EXISTS idx_requests_status ON requests(status);
 CREATE INDEX IF NOT EXISTS idx_requests_service ON requests(service_type);

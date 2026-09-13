@@ -88,6 +88,17 @@ export interface StatusHistory {
   note?: string;
 }
 
+/** رسالة داخلية بين إدارة المركز ومقدم الطلب */
+export interface RequestMessage {
+  id: string;
+  from: 'manager' | 'requester' | 'system';
+  senderName: string;
+  text: string;
+  at: string;
+  readByManager?: boolean;
+  readByRequester?: boolean;
+}
+
 export interface ServiceRequest {
   id: string;
   trackingCode: string;
@@ -109,6 +120,8 @@ export interface ServiceRequest {
   adminNotes?: string;
   /** أولوية الحجز المحددة من مدير المركز */
   priority?: BookingPriority;
+  /** الرسائل الداخلية بين الإدارة ومقدم الطلب */
+  messages?: RequestMessage[];
   // ===== حقول النماذج الموسّعة (تُحفظ مع الطلب) =====
   venueEventType?: VenueEventType;
   newsDate?: string;

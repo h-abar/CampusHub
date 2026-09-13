@@ -1,4 +1,4 @@
-import type { ServiceRequest, SystemSettings, VenueInfo } from '../types';
+import type { RequestMessage, ServiceRequest, SystemSettings, VenueInfo } from '../types';
 import type { User, StoredAdmin } from '../types/auth';
 import { DEFAULT_SETTINGS, SEED_ADMINS, DEFAULT_VENUES, createSampleRequests } from '../data/defaults';
 import { syncApi } from './api';
@@ -154,6 +154,58 @@ export function getRequestByTracking(code: string): ServiceRequest | null {
   return requests.find((r) => r.trackingCode?.toUpperCase() === code.toUpperCase()) || null;
 }
 
+/* ================= Internal messages ================= */
+
+export function sendRequestMessage(
+  requestId: string,
+  from: RequestMessage['from'],
+  senderName: string,
+  text: string
+): void {
+  const req = getStoredRequests().find((r) => r.id === requestId);
+  if (!req || !text.trim()) return;
+  const msg: RequestMessage = {
+    id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+    from,
+    senderName,
+    text: text.trim(),
+    at: new Date().toISOString(),
+    readByManager: from === 'manager' || from === 'system',
+    readByRequester: from === 'requester',
+  };
+  updateStoredRequest(requestId, { messages: [...(req.messages || []), msg] });
+}
+
+export function markRequestMessagesRead(
+  requestId: string,
+  reader: 'manager' | 'requester'
+): void {
+  const req = getStoredRequests().find((r) => r.id === requestId);
+  if (!req?.messages?.length) return;
+  const flag = reader === 'manager' ? 'readByManager' : 'readByRequester';
+  if (req.messages.every((m) => m[flag])) return;
+  updateStoredRequest(requestId, {
+    messages: req.messages.map((m) => ({ ...m, [flag]: true })),
+  });
+}
+
+export function countUnreadMessages(
+  requests: ServiceRequest[],
+  reader: 'manager' | 'requester'
+): number {
+  if (reader === 'manager') {
+    return requests.reduce(
+      (n, r) => n + (r.messages || []).filter((m) => m.from === 'requester' && !m.readByManager).length,
+      0
+    );
+  }
+  // مقدم الطلب: تنبيه عند رسائل الإدارة ورسائل النظام (اعتماد/إعادة جدولة)
+  return requests.reduce(
+    (n, r) => n + (r.messages || []).filter((m) => m.from !== 'requester' && !m.readByRequester).length,
+    0
+  );
+}
+
 export function getSystemSettings(): SystemSettings {
   ensureInitialized();
   const data = localStorage.getItem(KEYS.SETTINGS);
@@ -235,6 +287,11 @@ export function addStoredVenue(venue: VenueInfo): void {
   venues.push(venue);
   saveStoredVenues(venues);
   syncApi.addVenue(venue);
+}
+
+export function deleteStoredVenue(id: string): void {
+  saveStoredVenues(getStoredVenues().filter((v) => v.id !== id));
+  syncApi.deleteVenue(id);
 }
 
 export function resetStoredVenues(): void {

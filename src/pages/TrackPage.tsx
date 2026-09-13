@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, PackageSearch, Clock, User, Mail, Building2, Calendar } from 'lucide-react';
+import { Search, PackageSearch, Clock, User, Mail, Building2, Calendar, BellRing } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { getRequestByTracking, getSystemSettings } from '../utils/storage';
 import { formatDateRange, formatDate } from '../utils/dateUtils';
 import StatusBadge from '../components/StatusBadge';
+import RequestMessages from '../components/RequestMessages';
 import type { ServiceRequest } from '../types';
 
 export default function TrackPage() {
@@ -76,6 +77,24 @@ export default function TrackPage() {
 
       {result && (
         <div className="max-w-3xl mx-auto space-y-5 animate-slideUp">
+          {/* تنبيه الرسائل الجديدة من الإدارة */}
+          {(result.messages || []).some((m) => m.from !== 'requester' && !m.readByRequester) && (
+            <div className="flex items-center gap-3 p-4 rounded-xl bg-primary-50 border border-primary-200 text-primary-900 animate-fadeIn">
+              <span className="w-9 h-9 rounded-full bg-primary-700 text-white flex items-center justify-center shrink-0">
+                <BellRing className="w-4 h-4" />
+              </span>
+              <div className="text-sm">
+                <div className="font-bold">
+                  {language === 'ar' ? 'لديك تنبيهات جديدة من إدارة المركز' : 'New notifications from center management'}
+                </div>
+                <div className="text-xs text-primary-700">
+                  {(result.messages || []).filter((m) => m.from !== 'requester' && !m.readByRequester).length}{' '}
+                  {language === 'ar' ? 'رسالة/تحديث غير مقروء — راجع سلسلة الرسائل بالأسفل' : 'unread message(s) — see the thread below'}
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="card-static">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <div>
@@ -110,6 +129,19 @@ export default function TrackPage() {
                 value={formatDate(result.requestDate, language)}
               />
             </div>
+          </div>
+
+          {/* Messages with center management */}
+          <div className="card-static">
+            <h3 className="font-bold text-primary-900 mb-4">
+              {language === 'ar' ? 'التواصل مع إدارة المركز' : 'Contact Center Management'}
+            </h3>
+            <RequestMessages
+              request={result}
+              viewer="requester"
+              viewerName={result.requesterName}
+              onUpdated={() => setResult(getRequestByTracking(result.trackingCode))}
+            />
           </div>
 
           {/* Timeline */}

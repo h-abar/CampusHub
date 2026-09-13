@@ -69,7 +69,7 @@ const requestToJson = (r) => ({
   otherEventType: r.other_event_type ?? undefined, needsVenueBooking: r.needs_venue_booking ?? undefined,
   needsDocumentation: r.needs_documentation ?? undefined, documentationType: r.documentation_type ?? undefined,
   supportServices: r.support_services ?? undefined, expectedVisitors: r.expected_visitors ?? undefined,
-  visitorGender: r.visitor_gender ?? undefined,
+  visitorGender: r.visitor_gender ?? undefined, messages: r.messages ?? [],
 });
 const requestFromJson = (q) => [
   q.id, q.trackingCode, q.serviceType, q.title, q.description ?? null, q.requestDate ?? null,
@@ -87,6 +87,7 @@ const requestFromJson = (q) => [
   q.needsVenueBooking ?? null, q.needsDocumentation ?? null, q.documentationType ?? null,
   q.supportServices ? JSON.stringify(q.supportServices) : null,
   q.expectedVisitors ?? null, q.visitorGender ?? null,
+  JSON.stringify(q.messages ?? []),
 ];
 
 const asyncRoute = (fn) => (req, res) => fn(req, res).catch((e) => {
@@ -123,8 +124,8 @@ app.post('/api/bootstrap', asyncRoute(async (req, res) => {
     }
     for (const q of requests) {
       await client.query(
-        `INSERT INTO requests (id, tracking_code, service_type, title, description, request_date, event_dates, venues, status, status_history, priority, requester_name, requester_email, requester_phone, requester_department, requester_type, external_entity, additional_notes, admin_notes, venue_event_type, news_date, publishing_channels, design_language, target_audience, design_category, design_links, design_logos, workshop_attachments, design_brief, other_event_type, needs_venue_booking, needs_documentation, documentation_type, support_services, expected_visitors, visitor_gender)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36) ON CONFLICT (id) DO NOTHING`,
+        `INSERT INTO requests (id, tracking_code, service_type, title, description, request_date, event_dates, venues, status, status_history, priority, requester_name, requester_email, requester_phone, requester_department, requester_type, external_entity, additional_notes, admin_notes, venue_event_type, news_date, publishing_channels, design_language, target_audience, design_category, design_links, design_logos, workshop_attachments, design_brief, other_event_type, needs_venue_booking, needs_documentation, documentation_type, support_services, expected_visitors, visitor_gender, messages)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37) ON CONFLICT (id) DO NOTHING`,
         requestFromJson(q)
       );
     }
@@ -165,8 +166,8 @@ app.get('/api/requests', asyncRoute(async (_req, res) => {
 app.post('/api/requests', asyncRoute(async (req, res) => {
   const q = req.body;
   const { rows } = await pool.query(
-    `INSERT INTO requests (id, tracking_code, service_type, title, description, request_date, event_dates, venues, status, status_history, priority, requester_name, requester_email, requester_phone, requester_department, requester_type, external_entity, additional_notes, admin_notes, venue_event_type, news_date, publishing_channels, design_language, target_audience, design_category, design_links, design_logos, workshop_attachments, design_brief, other_event_type, needs_venue_booking, needs_documentation, documentation_type, support_services, expected_visitors, visitor_gender)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36)
+    `INSERT INTO requests (id, tracking_code, service_type, title, description, request_date, event_dates, venues, status, status_history, priority, requester_name, requester_email, requester_phone, requester_department, requester_type, external_entity, additional_notes, admin_notes, venue_event_type, news_date, publishing_channels, design_language, target_audience, design_category, design_links, design_logos, workshop_attachments, design_brief, other_event_type, needs_venue_booking, needs_documentation, documentation_type, support_services, expected_visitors, visitor_gender, messages)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37)
      RETURNING *`,
     requestFromJson(q)
   );
@@ -194,6 +195,7 @@ app.patch('/api/requests/:id', asyncRoute(async (req, res) => {
     eventDates: 'event_dates', venues: 'venues', statusHistory: 'status_history',
     publishingChannels: 'publishing_channels', designLogos: 'design_logos',
     workshopAttachments: 'workshop_attachments', supportServices: 'support_services',
+    messages: 'messages',
   };
   const sets = [];
   const vals = [];
@@ -252,6 +254,12 @@ app.patch('/api/venues/:id', asyncRoute(async (req, res) => {
   const { rows } = await pool.query(`UPDATE venues SET ${sets.join(', ')} WHERE id = $${i} RETURNING *`, vals);
   if (!rows.length) return res.status(404).json({ error: 'not found' });
   res.json(venueToJson(rows[0]));
+}));
+
+app.delete('/api/venues/:id', asyncRoute(async (req, res) => {
+  const { rowCount } = await pool.query('DELETE FROM venues WHERE id = $1', [req.params.id]);
+  if (!rowCount) return res.status(404).json({ error: 'not found' });
+  res.json({ ok: true });
 }));
 
 /* ---------- admins ---------- */
