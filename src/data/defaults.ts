@@ -86,17 +86,18 @@ export const SEED_ADMINS: StoredAdmin[] = [
     createdAt: '2024-01-01T00:00:00.000Z',
     services: ['event', 'delegation', 'other', 'theater'],
   },
-  // قسم الأعمال — جاري استحداث نموذج خاص
+  // قسم الأعمال — مدير مركز مؤتمرات وأعمال الدرعية (صلاحيات خاصة بطلبات وحجوزات المركز)
   {
     id: '8',
     username: 'hmashwakhi',
     name: 'أ. حسام المشوخي',
     email: 'hmashwakhi@um.edu.sa',
-    role: 'admin',
-    department: 'قسم الأعمال',
+    role: 'center_manager',
+    department: 'قسم الأعمال — مركز مؤتمرات وأعمال الدرعية',
     password: 'password123',
     active: true,
     createdAt: '2024-01-01T00:00:00.000Z',
+    services: ['theater'],
   },
   {
     id: '9',

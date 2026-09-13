@@ -2,7 +2,7 @@ export interface User {
   id: string;
   username: string;
   email: string;
-  role: 'admin' | 'user' | 'translationSupervisor';
+  role: 'admin' | 'user' | 'translationSupervisor' | 'center_manager';
   department?: string;
   /** Display name (e.g. Arabic full name) */
   name?: string;

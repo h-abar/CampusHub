@@ -78,6 +78,9 @@ export type RequestStatus =
   | 'completed'
   | 'cancelled';
 
+/** أولوية الحجز — يحددها مدير المركز لترتيب المواعيد وفض التعارضات */
+export type BookingPriority = 'normal' | 'high' | 'urgent';
+
 export interface StatusHistory {
   status: RequestStatus;
   changedBy: string;
@@ -104,6 +107,8 @@ export interface ServiceRequest {
   externalEntity?: string;
   additionalNotes?: string;
   adminNotes?: string;
+  /** أولوية الحجز المحددة من مدير المركز */
+  priority?: BookingPriority;
   // ===== حقول النماذج الموسّعة (تُحفظ مع الطلب) =====
   venueEventType?: VenueEventType;
   newsDate?: string;

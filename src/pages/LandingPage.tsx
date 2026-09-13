@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import HeroSlider from '../components/HeroSlider';
+import { PILLARS } from '../components/PillarsMenu';
 
 const FEATURE_IMAGES = [
   '/img/service-theater.jpg',
@@ -60,6 +61,80 @@ export default function LandingPage() {
     <div className="animate-fadeIn">
       {/* Hero 3D slider */}
       <HeroSlider />
+
+      {/* ===== محاور الاتصال المؤسسي الثلاثة ===== */}
+      <section className="page-shell !pt-10 !pb-8">
+        <div className="mb-8 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 border border-primary-100 text-primary-700 text-xs font-bold mb-3">
+            <span className="w-2 h-2 rounded-full bg-primary-700" />
+            <span>{t('pillars.title')}</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-ink leading-tight">
+            {isAr ? 'منظومة الاتصال المؤسسي' : 'Corporate Communications Ecosystem'}
+          </h2>
+          <p className="section-subtitle !mt-2 max-w-2xl mx-auto">{t('pillars.subtitle')}</p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-4 lg:gap-5">
+          {PILLARS.map((p, idx) => {
+            const Icon = p.icon;
+            return (
+              <div
+                key={p.id}
+                className="card !p-0 group relative overflow-hidden flex flex-col"
+              >
+                <div
+                  className="h-1.5 w-full"
+                  style={{ backgroundColor: p.color }}
+                />
+                <div className="p-5 flex flex-col gap-3 flex-1">
+                  <div className="flex items-start justify-between">
+                    <span
+                      className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110"
+                      style={{ backgroundColor: p.bg, color: p.color }}
+                    >
+                      <Icon className="w-6 h-6" />
+                    </span>
+                    <span
+                      className="text-[10px] font-bold tracking-wider px-2 py-1 rounded-full border"
+                      style={{ color: p.color, borderColor: p.bg, backgroundColor: p.bg }}
+                    >
+                      {isAr ? `المحور ${['الأول', 'الثاني', 'الثالث'][idx]}` : `Pillar ${idx + 1}`}
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-ink leading-snug">
+                      {t(p.nameKey)}
+                    </h3>
+                    <p className="text-[13px] text-ink-500 leading-7 mt-1.5 font-naskh">
+                      {t(p.descKey)}
+                    </p>
+                  </div>
+                  <div className="mt-auto flex flex-col gap-1.5 pt-2">
+                    {p.links.map((l) => (
+                      <Link
+                        key={l.to}
+                        to={l.to}
+                        className="inline-flex items-center justify-between gap-2 text-xs font-semibold px-3 py-2 rounded-md border transition-all hover:shadow-xs"
+                        style={{ borderColor: p.bg, color: p.color }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = p.bg;
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
+                      >
+                        {t(l.labelKey)}
+                        <Arrow className="w-3.5 h-3.5" />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       {/* Features with photos */}
       <section className="page-shell">

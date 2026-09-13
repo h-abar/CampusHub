@@ -35,6 +35,7 @@ import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
 import StatsCard from '../components/StatsCard';
 import ElectronicContractModal from '../components/ElectronicContractModal';
+import CenterManagerDashboard from '../components/CenterManagerDashboard';
 import type { RequestStatus, ServiceRequest, SystemSettings, VenueInfo } from '../types';
 import type { StoredAdmin } from '../types/auth';
 import { normalizeDateRange, addDaysISO, todayISO } from '../utils/dateUtils';
@@ -42,6 +43,17 @@ import { normalizeDateRange, addDaysISO, todayISO } from '../utils/dateUtils';
 type Tab = 'overview' | 'requests' | 'venues' | 'admins' | 'settings';
 
 export default function Dashboard() {
+  const { user } = useAuth();
+
+  // مدير مركز مؤتمرات وأعمال الدرعية يحصل على واجهة تشغيل مخصصة
+  // بطلبات المركز والحجوزات فقط + أدوات الجدولة والأولوية وفض التعارض.
+  if (user?.role === 'center_manager') {
+    return <CenterManagerDashboard />;
+  }
+  return <AdminDashboard />;
+}
+
+function AdminDashboard() {
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const [tab, setTab] = useState<Tab>('overview');

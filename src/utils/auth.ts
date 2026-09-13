@@ -1,11 +1,12 @@
 import type { User } from '../types/auth';
 import { getStoredAdmins } from './storage';
+import { apiLogin } from './api';
 
-// Mock authentication against the stored admins list.
-// In a real app, this would call a backend with proper password hashing.
+// Authenticate against the PostgreSQL API first; fall back to the local
+// stored admins list when the server is unreachable.
 export async function authenticateUser(username: string, password: string): Promise<User> {
-  // Simulate API call delay
-  await new Promise((resolve) => setTimeout(resolve, 500));
+  const apiUser = await apiLogin(username, password);
+  if (apiUser) return apiUser;
 
   const admin = getStoredAdmins().find((a) => a.username === username.trim());
   if (admin && admin.active && admin.password === password) {

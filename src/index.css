@@ -339,6 +339,10 @@
     animation: slideUp 0.32s ease-out;
   }
 
+  .animate-megaIn {
+    animation: megaIn 0.22s ease-out;
+  }
+
   .text-balance {
     text-wrap: balance;
   }
@@ -351,6 +355,11 @@
 
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes megaIn {
+  from { opacity: 0; transform: translateY(-6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 

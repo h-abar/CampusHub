@@ -20,6 +20,8 @@ import {
   Send,
   X,
   Calendar as CalendarIcon,
+  Flame,
+  AlertTriangle,
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import {
@@ -96,6 +98,8 @@ const STATUS_CONFIG: Record<
     dot: 'bg-slate-400',
   },
 };
+
+const priorityWeight: Record<string, number> = { urgent: 3, high: 2, normal: 1 };
 
 const VENUE_FALLBACK_IMAGES: Record<string, string> = {
   theater: '/img/business-presentation.jpg',
@@ -301,15 +305,15 @@ export default function VenuesPage() {
         },
       ],
       venues: [quickBookingSlot.venue.id],
-      status: 'approved',
+      status: 'pending',
       statusHistory: [
         {
-          status: 'approved',
+          status: 'pending',
           changedBy: 'بوابة الحجز الذكية',
           changedAt: new Date().toISOString(),
           note: isAr
-            ? `تم تأكيد وتثبيت الحجز لصالح: ${quickForm.beneficiary} في الفترة (${quickForm.startTime} - ${quickForm.endTime})`
-            : `Booking confirmed for ${quickForm.beneficiary} (${quickForm.startTime} - ${quickForm.endTime})`,
+            ? `طلب حجز لصالح: ${quickForm.beneficiary} في الفترة (${quickForm.startTime} - ${quickForm.endTime}) — بانتظار اعتماد مدير المركز`
+            : `Booking request for ${quickForm.beneficiary} (${quickForm.startTime} - ${quickForm.endTime}) — awaiting center manager approval`,
         },
       ],
       requesterName: quickForm.requesterName || (isAr ? 'منسق الجهة' : 'Entity Coordinator'),
@@ -597,46 +601,74 @@ export default function VenuesPage() {
                         {days.map((d) => {
                           const reqs = bookingsMap[venue.id]?.[d] || [];
                           const isBooked = reqs.length > 0;
-                          const req = reqs[0];
 
-                          if (isBooked && req) {
-                            const statusStyle = STATUS_CONFIG[req.status] || STATUS_CONFIG.approved;
-                            const beneficiary =
-                              req.externalEntity ||
-                              (req.requesterDepartment ? req.requesterDepartment.replace(/^[^:]*:/, '') : req.requesterName);
-                            const slotTime = req.eventDates?.find((dr) => dr.date === d);
-                            const timeStr = slotTime?.startTime && slotTime?.endTime
-                              ? `${slotTime.startTime} - ${slotTime.endTime}`
-                              : '09:00 - 14:00';
-
+                          if (isBooked) {
+                            // ترتيب الحجوزات حسب الأولوية (عاجل/عالي أولاً)
+                            const sorted = [...reqs].sort(
+                              (a, b) => (priorityWeight[b.priority ?? 'normal'] ?? 1) - (priorityWeight[a.priority ?? 'normal'] ?? 1)
+                            );
+                            const hasOverlap = reqs.length > 1;
                             return (
                               <td key={d} className="p-1.5 text-start border-e border-slate-100 align-top">
-                                <button
-                                  type="button"
-                                  onClick={() => setInspectedBooking({ request: req, venue, date: d })}
-                                  className={`w-full p-2 rounded-lg border text-start transition-all hover:scale-[1.02] shadow-2xs ${statusStyle.bg} ${statusStyle.border}`}
-                                >
-                                  {/* Status pill & dot */}
-                                  <div className="flex items-center justify-between gap-1 mb-1">
-                                    <span className="flex items-center gap-1 text-[10px] font-bold truncate">
-                                      <span className={`w-2 h-2 rounded-full ${statusStyle.dot} shrink-0`} />
-                                      <span className={statusStyle.text}>
-                                        {isAr ? statusStyle.labelAr : statusStyle.labelEn}
-                                      </span>
-                                    </span>
-                                  </div>
+                                <div className="space-y-1">
+                                  {sorted.slice(0, 2).map((req) => {
+                                    const statusStyle = STATUS_CONFIG[req.status] || STATUS_CONFIG.approved;
+                                    const beneficiary =
+                                      req.externalEntity ||
+                                      (req.requesterDepartment ? req.requesterDepartment.replace(/^[^:]*:/, '') : req.requesterName);
+                                    const slotTime = req.eventDates?.find((dr) => normalizeDateRange(dr).date === d);
+                                    const timeStr = slotTime?.startTime && slotTime?.endTime
+                                      ? `${slotTime.startTime} - ${slotTime.endTime}`
+                                      : '09:00 - 14:00';
+                                    const isUrgent = req.priority === 'urgent' || req.priority === 'high';
 
-                                  {/* Beneficiary Entity */}
-                                  <div className="text-[11px] font-bold text-ink-900 line-clamp-1 mb-1 font-naskh">
-                                    {beneficiary}
-                                  </div>
+                                    return (
+                                      <button
+                                        key={req.id}
+                                        type="button"
+                                        onClick={() => setInspectedBooking({ request: req, venue, date: d })}
+                                        className={`w-full p-2 rounded-lg border text-start transition-all hover:scale-[1.02] shadow-2xs ${statusStyle.bg} ${statusStyle.border} ${
+                                          hasOverlap ? 'ring-1 ring-rose-300' : ''
+                                        }`}
+                                      >
+                                        {/* Status pill & dot + priority */}
+                                        <div className="flex items-center justify-between gap-1 mb-1">
+                                          <span className="flex items-center gap-1 text-[10px] font-bold truncate">
+                                            <span className={`w-2 h-2 rounded-full ${statusStyle.dot} shrink-0`} />
+                                            <span className={statusStyle.text}>
+                                              {isAr ? statusStyle.labelAr : statusStyle.labelEn}
+                                            </span>
+                                          </span>
+                                          {isUrgent && (
+                                            <Flame className={`w-3 h-3 shrink-0 ${req.priority === 'urgent' ? 'text-rose-600' : 'text-amber-500'}`} />
+                                          )}
+                                        </div>
 
-                                  {/* Exact Time Slot */}
-                                  <div className="flex items-center gap-1 text-[10px] text-slate-600 font-mono" dir="ltr">
-                                    <Clock className="w-3 h-3 text-slate-400 shrink-0" />
-                                    <span>{timeStr}</span>
-                                  </div>
-                                </button>
+                                        {/* Beneficiary Entity */}
+                                        <div className="text-[11px] font-bold text-ink-900 line-clamp-1 mb-1 font-naskh">
+                                          {beneficiary}
+                                        </div>
+
+                                        {/* Exact Time Slot */}
+                                        <div className="flex items-center gap-1 text-[10px] text-slate-600 font-mono" dir="ltr">
+                                          <Clock className="w-3 h-3 text-slate-400 shrink-0" />
+                                          <span>{timeStr}</span>
+                                        </div>
+                                      </button>
+                                    );
+                                  })}
+                                  {reqs.length > 2 && (
+                                    <div className="text-center text-[10px] font-bold text-slate-500">
+                                      +{reqs.length - 2} {isAr ? 'حجوزات أخرى' : 'more'}
+                                    </div>
+                                  )}
+                                  {hasOverlap && (
+                                    <div className="flex items-center justify-center gap-1 text-[9px] font-bold text-rose-600">
+                                      <AlertTriangle className="w-3 h-3" />
+                                      {isAr ? 'تعارض محتمل' : 'Possible overlap'}
+                                    </div>
+                                  )}
+                                </div>
                               </td>
                             );
                           }
@@ -967,12 +999,12 @@ export default function VenuesPage() {
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
                 <h4 className="font-bold text-lg text-ink-900 font-sans">
-                  {isAr ? 'تم تثبيت وتأكيد الحجز بنجاح!' : 'Booking Confirmed Successfully!'}
+                  {isAr ? 'تم إرسال طلب الحجز بنجاح!' : 'Booking Request Submitted!'}
                 </h4>
                 <p className="text-xs text-slate-600 max-w-sm mx-auto">
                   {isAr
-                    ? `تم تسجيل الحجز للقاعة في التاريخ المحدد وإدراجه في جدول الإشغال برقم تتبع:`
-                    : `Your booking has been registered in the live schedule with tracking code:`}
+                    ? 'تم تسجيل طلبك وحجز الفترة مبدئياً — سيتم تأكيده نهائياً بعد اعتماد مدير مركز الدرعية. رقم التتبع:'
+                    : 'Your slot is held provisionally pending center manager approval. Tracking code:'}
                 </p>
                 <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl font-mono text-base font-bold text-primary">
                   {quickSuccessCode}
@@ -1174,7 +1206,7 @@ export default function VenuesPage() {
                     className="btn-primary text-xs !py-2.5 !px-5 font-bold flex items-center gap-1.5 shadow-md"
                   >
                     <Send className="w-3.5 h-3.5" />
-                    <span>{isAr ? 'تأكيد وحفظ الحجز في الجدول' : 'Confirm & Lock Slot'}</span>
+                    <span>{isAr ? 'إرسال طلب الحجز للاعتماد' : 'Submit Booking Request'}</span>
                   </button>
                 </div>
               </form>

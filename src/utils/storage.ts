@@ -1,6 +1,7 @@
 import type { ServiceRequest, SystemSettings, VenueInfo } from '../types';
 import type { User, StoredAdmin } from '../types/auth';
 import { DEFAULT_SETTINGS, SEED_ADMINS, DEFAULT_VENUES, createSampleRequests } from '../data/defaults';
+import { syncApi } from './api';
 
 const KEYS = {
   USER: 'auth_user',
@@ -38,8 +39,20 @@ export function ensureInitialized(): void {
     const missing = SEED_ADMINS.filter(
       (s) => !existingAdmins.some((a) => a.username === s.username)
     );
-    if (missing.length) {
-      localStorage.setItem(KEYS.ADMINS, JSON.stringify([...existingAdmins, ...missing]));
+    // Migration: sync seed-defined role/department for existing accounts and
+    // assign seed services when the stored account has none configured yet.
+    const synced = existingAdmins.map((a) => {
+      const seed = SEED_ADMINS.find((s) => s.username === a.username);
+      if (!seed) return a;
+      return {
+        ...a,
+        role: seed.role,
+        department: seed.department ?? a.department,
+        services: a.services?.length ? a.services : seed.services,
+      };
+    });
+    if (missing.length || JSON.stringify(synced) !== JSON.stringify(existingAdmins)) {
+      localStorage.setItem(KEYS.ADMINS, JSON.stringify([...synced, ...missing]));
     }
   }
 
@@ -123,6 +136,7 @@ export function addStoredRequest(request: ServiceRequest): void {
   const requests = getStoredRequests();
   requests.unshift(request);
   setStoredRequests(requests);
+  syncApi.addRequest(request);
 }
 
 export function updateStoredRequest(id: string, patch: Partial<ServiceRequest>): ServiceRequest | null {
@@ -131,6 +145,7 @@ export function updateStoredRequest(id: string, patch: Partial<ServiceRequest>):
   if (idx === -1) return null;
   requests[idx] = { ...requests[idx], ...patch };
   setStoredRequests(requests);
+  syncApi.updateRequest(id, patch);
   return requests[idx];
 }
 
@@ -147,6 +162,7 @@ export function getSystemSettings(): SystemSettings {
 
 export function saveSystemSettings(settings: SystemSettings): void {
   localStorage.setItem(KEYS.SETTINGS, JSON.stringify(settings));
+  syncApi.saveSettings(settings);
 }
 
 /* ================= Admins ================= */
@@ -165,6 +181,7 @@ export function addStoredAdmin(admin: StoredAdmin): void {
   const admins = getStoredAdmins();
   admins.unshift(admin);
   saveStoredAdmins(admins);
+  syncApi.addAdmin(admin);
 }
 
 export function updateStoredAdmin(id: string, patch: Partial<StoredAdmin>): StoredAdmin | null {
@@ -173,11 +190,13 @@ export function updateStoredAdmin(id: string, patch: Partial<StoredAdmin>): Stor
   if (idx === -1) return null;
   admins[idx] = { ...admins[idx], ...patch };
   saveStoredAdmins(admins);
+  syncApi.updateAdmin(id, patch);
   return admins[idx];
 }
 
 export function deleteStoredAdmin(id: string): void {
   saveStoredAdmins(getStoredAdmins().filter((a) => a.id !== id));
+  syncApi.deleteAdmin(id);
 }
 
 /* ================= Venues ================= */
@@ -207,6 +226,7 @@ export function updateStoredVenue(id: string, patch: Partial<VenueInfo>): VenueI
   if (idx === -1) return null;
   venues[idx] = { ...venues[idx], ...patch };
   saveStoredVenues(venues);
+  syncApi.updateVenue(id, patch);
   return venues[idx];
 }
 
@@ -214,6 +234,7 @@ export function addStoredVenue(venue: VenueInfo): void {
   const venues = getStoredVenues();
   venues.push(venue);
   saveStoredVenues(venues);
+  syncApi.addVenue(venue);
 }
 
 export function resetStoredVenues(): void {

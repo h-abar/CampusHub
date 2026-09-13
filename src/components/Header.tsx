@@ -1,21 +1,23 @@
 import { useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { LogOut, Menu, X, LayoutDashboard, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import LanguageToggle from './LanguageToggle';
+import ServicesMegaMenu, { ServicesMobileAccordion } from './ServicesMegaMenu';
 
 const LOGO = '/img/logo-um.png';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-  `relative px-3 py-2 text-sm font-medium transition-colors ${
+  `relative px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
     isActive ? 'text-primary-700' : 'text-ink-700 hover:text-primary-700'
   }`;
 
 export default function Header() {
   const { user, logout } = useAuth();
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
@@ -24,13 +26,7 @@ export default function Header() {
     setIsMenuOpen(false);
   };
 
-  const links = [
-    { to: '/', label: t('nav.home'), end: true },
-    { to: '/diriyah-center', label: t('nav.diriyah') },
-    { to: '/services', label: t('nav.services') },
-    { to: '/venues', label: t('nav.venues') },
-    { to: '/track', label: t('nav.track') },
-  ];
+  const isServicesActive = location.pathname.startsWith('/services');
 
   return (
     <header className="sticky top-0 z-40">
@@ -51,7 +47,8 @@ export default function Header() {
       <div className="glass">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-[4.25rem]">
-            <Link to="/" className="flex items-center gap-3 min-w-0 group">
+            {/* الشعار والهوية */}
+            <Link to="/" className="flex items-center gap-3 min-w-0 group shrink-0">
               <img
                 src={LOGO}
                 alt={t('app.university')}
@@ -60,32 +57,60 @@ export default function Header() {
                   (e.target as HTMLImageElement).src = '/logo.svg';
                 }}
               />
-              <div className="hidden sm:block min-w-0 border-s border-[var(--line)] ps-3">
-                <div className="text-[0.95rem] md:text-base font-semibold text-ink leading-tight truncate group-hover:text-primary-700 transition-colors">
-                  {t('app.title')}
-                </div>
-                <div className="text-[11px] text-ink-400 mt-0.5 truncate">
-                  {language === 'ar' ? 'إدارة العلاقات العامة والتسويق' : 'PR & Marketing Department'}
-                </div>
-              </div>
             </Link>
 
+            {/* القائمة الرئيسية الموحدة — بدون تكرار أو خلطة */}
             <nav className="hidden lg:flex items-center gap-1">
-              {links.map((l) => (
-                <NavLink key={l.to} to={l.to} end={l.end} className={navLinkClass}>
-                  {({ isActive }) => (
-                    <span className="relative inline-block">
-                      {l.label}
-                      {isActive && (
-                        <span className="absolute -bottom-1 start-0 end-0 h-0.5 bg-secondary" />
-                      )}
-                    </span>
-                  )}
-                </NavLink>
-              ))}
+              <NavLink to="/" end className={navLinkClass}>
+                {({ isActive }) => (
+                  <span className="relative inline-block">
+                    {t('nav.home')}
+                    {isActive && (
+                      <span className="absolute -bottom-1 start-0 end-0 h-0.5 bg-secondary" />
+                    )}
+                  </span>
+                )}
+              </NavLink>
+
+              {/* خدمات إدارة الاتصال المؤسسي — Mega Menu */}
+              <ServicesMegaMenu activeRoute={isServicesActive} />
+
+              <NavLink to="/diriyah-center" className={navLinkClass}>
+                {({ isActive }) => (
+                  <span className="relative inline-block">
+                    {t('nav.diriyah')}
+                    {isActive && (
+                      <span className="absolute -bottom-1 start-0 end-0 h-0.5 bg-secondary" />
+                    )}
+                  </span>
+                )}
+              </NavLink>
+
+              <NavLink to="/venues" className={navLinkClass}>
+                {({ isActive }) => (
+                  <span className="relative inline-block">
+                    {t('nav.venues')}
+                    {isActive && (
+                      <span className="absolute -bottom-1 start-0 end-0 h-0.5 bg-secondary" />
+                    )}
+                  </span>
+                )}
+              </NavLink>
+
+              <NavLink to="/track" className={navLinkClass}>
+                {({ isActive }) => (
+                  <span className="relative inline-block">
+                    {t('nav.track')}
+                    {isActive && (
+                      <span className="absolute -bottom-1 start-0 end-0 h-0.5 bg-secondary" />
+                    )}
+                  </span>
+                )}
+              </NavLink>
             </nav>
 
-            <div className="flex items-center gap-2 md:gap-3">
+            {/* أدوات التحكم وتسجيل الدخول */}
+            <div className="flex items-center gap-2 md:gap-3 shrink-0">
               <LanguageToggle />
               {user ? (
                 <div className="hidden md:flex items-center gap-2">
@@ -118,24 +143,64 @@ export default function Header() {
             </div>
           </div>
 
+          {/* القائمة الجوالة — نظيفة ومرتبة بالكامل وبدون تكرار */}
           {isMenuOpen && (
             <div className="lg:hidden pb-4 border-t border-[var(--line)] animate-fadeIn">
               <nav className="flex flex-col gap-1 pt-3">
-                {links.map((l) => (
-                  <NavLink
-                    key={l.to}
-                    to={l.to}
-                    end={l.end}
-                    onClick={() => setIsMenuOpen(false)}
-                    className={({ isActive }) =>
-                      `px-3 py-2.5 text-sm font-medium rounded-md ${
-                        isActive ? 'bg-primary-100 text-primary-800' : 'text-ink-700 hover:bg-ink-50'
-                      }`
-                    }
-                  >
-                    {l.label}
-                  </NavLink>
-                ))}
+                <NavLink
+                  to="/"
+                  end
+                  onClick={() => setIsMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `px-3 py-2.5 text-sm font-medium rounded-md ${
+                      isActive ? 'bg-primary-100 text-primary-800' : 'text-ink-700 hover:bg-ink-50'
+                    }`
+                  }
+                >
+                  {t('nav.home')}
+                </NavLink>
+
+                {/* خدمات إدارة الاتصال المؤسسي — Accordion منظم للجوال */}
+                <ServicesMobileAccordion onNavigate={() => setIsMenuOpen(false)} />
+
+                <NavLink
+                  to="/diriyah-center"
+                  onClick={() => setIsMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `px-3 py-2.5 text-sm font-medium rounded-md ${
+                      isActive ? 'bg-primary-100 text-primary-800' : 'text-ink-700 hover:bg-ink-50'
+                    }`
+                  }
+                >
+                  {t('nav.diriyah')}
+                </NavLink>
+
+                <NavLink
+                  to="/venues"
+                  onClick={() => setIsMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `px-3 py-2.5 text-sm font-medium rounded-md ${
+                      isActive ? 'bg-primary-100 text-primary-800' : 'text-ink-700 hover:bg-ink-50'
+                    }`
+                  }
+                >
+                  {t('nav.venues')}
+                </NavLink>
+
+                <NavLink
+                  to="/track"
+                  onClick={() => setIsMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `px-3 py-2.5 text-sm font-medium rounded-md ${
+                      isActive ? 'bg-primary-100 text-primary-800' : 'text-ink-700 hover:bg-ink-50'
+                    }`
+                  }
+                >
+                  {t('nav.track')}
+                </NavLink>
+
+                <div className="border-t border-[var(--line)] my-2" />
+
                 {user ? (
                   <>
                     <NavLink
@@ -156,7 +221,7 @@ export default function Header() {
                   <Link
                     to="/login"
                     onClick={() => setIsMenuOpen(false)}
-                    className="btn-primary text-sm mt-2 justify-center"
+                    className="btn-primary text-sm mt-1 justify-center"
                   >
                     {t('nav.login')}
                   </Link>

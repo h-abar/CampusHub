@@ -2,6 +2,7 @@ import { Outlet, Link } from 'react-router-dom';
 import { Mail, Phone, Building2 } from 'lucide-react';
 import Header from './Header';
 import { useLanguage } from '../context/LanguageContext';
+import { PILLARS } from './PillarsMenu';
 import { ensureInitialized } from '../utils/storage';
 
 ensureInitialized();
@@ -43,7 +44,7 @@ export default function Layout() {
               style={{ backgroundColor: 'rgba(11, 44, 53, 0.94)' }}
             />
             <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-              <div className="grid md:grid-cols-3 gap-8 mb-8">
+              <div className="grid md:grid-cols-4 gap-8 mb-8">
                 <div>
                   <div className="flex items-center gap-3 mb-4">
                     <img
@@ -73,6 +74,36 @@ export default function Layout() {
                   >
                     {t('footer.about.text')}
                   </p>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-1" style={{ color: '#ffffff' }}>
+                    {t('pillars.title')}
+                  </h4>
+                  <div className="mb-4" style={{ height: 3, width: 48, backgroundColor: '#B8956C' }} />
+                  <ul className="space-y-3 text-sm mb-6">
+                    {PILLARS.map((p) => {
+                      const Icon = p.icon;
+                      return (
+                        <li key={p.id} className="flex items-start gap-2.5">
+                          <span
+                            className="w-7 h-7 rounded-md flex items-center justify-center shrink-0"
+                            style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: '#D2BA93' }}
+                          >
+                            <Icon className="w-4 h-4" />
+                          </span>
+                          <div>
+                            <div className="font-semibold text-[13px]" style={{ color: '#ffffff' }}>
+                              {t(p.nameKey)}
+                            </div>
+                            <div className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                              {t(p.descKey)}
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </div>
 
                 <div>
