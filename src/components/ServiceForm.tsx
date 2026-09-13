@@ -10,7 +10,7 @@ import type {
   ExternalEntity,
   ServiceRequest,
 } from '../types';
-import TheaterForm from './forms/TheaterForm';
+import TheaterBookingWizard from './forms/TheaterBookingWizard';
 import CoverageForm from './forms/CoverageForm';
 import PhotographyForm from './forms/PhotographyForm';
 import DesignForm from './forms/DesignForm';
@@ -117,6 +117,12 @@ export default function ServiceForm({
       if (!formData.venues?.length) {
         setError(t('form.venues.required'));
         return;
+      }
+      for (const dr of formData.eventDates) {
+        if (!dr.date || !dr.startTime || !dr.endTime) {
+          setError(language === 'ar' ? 'أكمل التاريخ والوقت لكل موعد' : 'Complete date & time for every slot');
+          return;
+        }
       }
       for (const venue of formData.venues) {
         for (const dr of formData.eventDates) {
@@ -253,6 +259,8 @@ export default function ServiceForm({
     );
   }
 
+  const isTheater = formData.serviceType === 'theater';
+
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {error && (
@@ -262,15 +270,23 @@ export default function ServiceForm({
       )}
 
       {/* Service-specific fields */}
-      {formData.serviceType === 'theater' && (
-        <TheaterForm
+      {isTheater ? (
+        <TheaterBookingWizard
           formData={formData}
           setFormData={setFormData}
           allRequests={allRequests}
           showAvailability={showAvailability}
           setShowAvailability={setShowAvailability}
+          colleges={colleges}
+          externalEntities={externalEntities}
+          collegeId={collegeId}
+          setCollegeId={setCollegeId}
+          deptName={deptName}
+          setDeptName={setDeptName}
+          submitting={submitting}
         />
-      )}
+      ) : (
+      <>
       {formData.serviceType === 'coverage' && (
         <CoverageForm formData={formData} setFormData={setFormData} />
       )}
@@ -486,6 +502,8 @@ export default function ServiceForm({
           t('form.submit')
         )}
       </button>
+      </>
+      )}
     </form>
   );
 }
