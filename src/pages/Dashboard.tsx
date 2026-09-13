@@ -36,6 +36,7 @@ import Modal from '../components/Modal';
 import StatsCard from '../components/StatsCard';
 import ElectronicContractModal from '../components/ElectronicContractModal';
 import CenterManagerDashboard from '../components/CenterManagerDashboard';
+import BookingRulesEditor from '../components/BookingRulesEditor';
 import type { RequestStatus, ServiceRequest, SystemSettings, VenueInfo } from '../types';
 import type { StoredAdmin } from '../types/auth';
 import { normalizeDateRange, addDaysISO, todayISO } from '../utils/dateUtils';
@@ -897,6 +898,19 @@ function AdminDashboard() {
           <button onClick={saveSettings} className="btn-primary">
             {savedFlash ? t('settings.saved') : t('settings.save')}
           </button>
+
+          {/* ضوابط حجز مرافق المركز — يعدلها مدير النظام أيضاً */}
+          <div className="pt-4 border-t border-[var(--line)]">
+            <h2 className="font-bold text-ink-900 mb-1">
+              {language === 'ar' ? 'ضوابط حجز مرافق مركز الدرعية' : 'Diriyah Center Booking Rules'}
+            </h2>
+            <p className="text-xs text-slate-400 mb-4">
+              {language === 'ar'
+                ? 'القيود الزمنية ونصوص الضوابط التي تُعرض لمقدم الطلب وتُفرض في معالج الحجز.'
+                : 'Time constraints and rule texts shown to requesters and enforced in the booking wizard.'}
+            </p>
+            <BookingRulesEditor />
+          </div>
         </div>
       )}
 

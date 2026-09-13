@@ -16,6 +16,7 @@ import {
   Landmark,
   MessageSquareText,
   PlayCircle,
+  ScrollText,
   Search,
   SlidersHorizontal,
   Star,
@@ -48,9 +49,10 @@ import Modal from './Modal';
 import ElectronicContractModal from './ElectronicContractModal';
 import RequestMessages from './RequestMessages';
 import VenueManagementTab from './VenueManagementTab';
+import BookingRulesEditor from './BookingRulesEditor';
 import type { BookingPriority, DateRange, RequestStatus, ServiceRequest, VenueInfo } from '../types';
 
-type CenterTab = 'overview' | 'requests' | 'schedule' | 'venues' | 'messages';
+type CenterTab = 'overview' | 'requests' | 'schedule' | 'venues' | 'messages' | 'rules';
 
 const PRIORITY_CONFIG: Record<
   BookingPriority,
@@ -240,6 +242,11 @@ export default function CenterManagerDashboard() {
       id: 'venues',
       label: isAr ? 'القاعات والمرافق' : 'Venues',
       icon: SlidersHorizontal,
+    },
+    {
+      id: 'rules',
+      label: isAr ? 'ضوابط الحجز' : 'Booking Rules',
+      icon: ScrollText,
     },
     {
       id: 'messages',
@@ -689,6 +696,9 @@ export default function CenterManagerDashboard() {
 
       {/* ======= VENUE MANAGEMENT ======= */}
       {tab === 'venues' && <VenueManagementTab venues={venues} onChanged={reloadVenues} />}
+
+      {/* ======= BOOKING RULES ======= */}
+      {tab === 'rules' && <BookingRulesEditor />}
 
       {/* ======= MESSAGES ======= */}
       {tab === 'messages' && (

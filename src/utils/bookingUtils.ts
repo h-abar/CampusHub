@@ -1,5 +1,5 @@
 import type { ServiceRequest, DateRange, VenueInfo } from '../types';
-import { normalizeDateRange } from './dateUtils';
+import { addDaysISO, normalizeDateRange } from './dateUtils';
 
 const ACTIVE_STATUSES = ['pending', 'approved', 'in_progress'] as const;
 
@@ -101,6 +101,61 @@ export function bookingsForSlot(
     if (!isActiveBooking(r) || !r.venues?.includes(venueId)) return false;
     return r.eventDates.some((raw) => normalizeDateRange(raw).date === date);
   });
+}
+
+/* ---------- ضوابط الحجز (Booking Rules) ---------- */
+
+export interface BookingRuleViolation {
+  code: 'past_date' | 'beyond_window' | 'consecutive_days';
+  /** أيام الفترة المتصلة عند مخالفة الحد الأقصى */
+  runLength?: number;
+  limit?: number;
+}
+
+/** أطول سلسلة أيام متصلة ضمن المواعيد المحددة */
+export function longestConsecutiveRun(dates: string[]): number {
+  const uniq = [...new Set(dates.filter(Boolean))].sort();
+  let best = 0;
+  let run = 0;
+  let prev = '';
+  for (const d of uniq) {
+    if (prev) {
+      const diff = Math.round(
+        (new Date(d + 'T00:00:00').getTime() - new Date(prev + 'T00:00:00').getTime()) / 86400000
+      );
+      run = diff === 1 ? run + 1 : 1;
+    } else {
+      run = 1;
+    }
+    if (run > best) best = run;
+    prev = d;
+  }
+  return best;
+}
+
+/**
+ * فحص مواعيد الطلب ضد ضوابط المركز:
+ * - لا مواعيد في الماضي
+ * - لا مواعيد تتجاوز نافذة maxAdvanceDays
+ * - لا حجز يتجاوز maxConsecutiveDays أيام متصلة
+ */
+export function validateBookingDates(
+  slots: DateRange[],
+  cfg: { maxAdvanceDays: number; maxConsecutiveDays: number },
+  today: string
+): BookingRuleViolation | null {
+  const limit = addDaysISO(cfg.maxAdvanceDays, today);
+  for (const raw of slots) {
+    const d = normalizeDateRange(raw).date;
+    if (!d) continue;
+    if (d < today) return { code: 'past_date' };
+    if (d > limit) return { code: 'beyond_window', limit: cfg.maxAdvanceDays };
+  }
+  const run = longestConsecutiveRun(slots.map((s) => normalizeDateRange(s).date));
+  if (cfg.maxConsecutiveDays > 0 && run > cfg.maxConsecutiveDays) {
+    return { code: 'consecutive_days', runLength: run, limit: cfg.maxConsecutiveDays };
+  }
+  return null;
 }
 
 export type { DateRange, VenueInfo };

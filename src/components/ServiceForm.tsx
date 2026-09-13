@@ -22,9 +22,10 @@ import WorkshopForm from './forms/WorkshopForm';
 import EventForm from './forms/EventForm';
 import DelegationForm from './forms/DelegationForm';
 import { useLanguage } from '../context/LanguageContext';
-import { addStoredRequest, getStoredRequests } from '../utils/storage';
+import { addStoredRequest, getStoredRequests, getSystemSettings } from '../utils/storage';
 import { generateTrackingCode } from '../data/defaults';
-import { normalizeDateRange, rangesOverlap } from '../utils/dateUtils';
+import { normalizeDateRange, rangesOverlap, todayISO } from '../utils/dateUtils';
+import { validateBookingDates } from '../utils/bookingUtils';
 
 interface ServiceFormProps {
   initialService?: ServiceType | null;
@@ -123,6 +124,29 @@ export default function ServiceForm({
           setError(language === 'ar' ? 'أكمل التاريخ والوقت لكل موعد' : 'Complete date & time for every slot');
           return;
         }
+      }
+      // فرض ضوابط المركز: نافذة 60 يوماً + حد الأيام المتصلة
+      const rules = getSystemSettings().bookingRules;
+      const violation = validateBookingDates(
+        formData.eventDates,
+        { maxAdvanceDays: rules?.maxAdvanceDays ?? 60, maxConsecutiveDays: rules?.maxConsecutiveDays ?? 5 },
+        todayISO()
+      );
+      if (violation) {
+        setError(
+          language === 'ar'
+            ? violation.code === 'past_date'
+              ? 'لا يمكن الحجز في تاريخ سابق'
+              : violation.code === 'beyond_window'
+                ? `ضوابط الحجز: تُقبل المواعيد ضمن ${rules?.maxAdvanceDays ?? 60} يوماً القادمة فقط`
+                : `ضوابط الحجز: لا يجوز تجاوز ${rules?.maxConsecutiveDays ?? 5} أيام متصلة`
+            : violation.code === 'past_date'
+              ? 'Cannot book a past date'
+              : violation.code === 'beyond_window'
+                ? `Dates are accepted within the next ${rules?.maxAdvanceDays ?? 60} days only`
+                : `Bookings cannot exceed ${rules?.maxConsecutiveDays ?? 5} consecutive days`
+        );
+        return;
       }
       for (const venue of formData.venues) {
         for (const dr of formData.eventDates) {

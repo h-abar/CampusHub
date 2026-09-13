@@ -213,10 +213,28 @@ export interface ServiceFormData {
   visitorGender?: 'male' | 'female' | 'both';
 }
 
+/** ضابط حجز واحد — قابل للتعديل من مدير المركز/مدير النظام */
+export interface BookingRule {
+  id: string;
+  ar: string;
+  en: string;
+  enabled: boolean;
+}
+
+/** ضوابط وإجراءات حجز مرافق المركز */
+export interface BookingRulesConfig {
+  /** لا تُقبل مواعيد تتجاوز هذا العدد من الأيام من تاريخ التقديم */
+  maxAdvanceDays: number;
+  /** أقصى مدة حجز متصلة بالأيام */
+  maxConsecutiveDays: number;
+  rules: BookingRule[];
+}
+
 export interface SystemSettings {
   services: ServiceDefinition[];
   colleges: College[];
   externalEntities: ExternalEntity[];
+  bookingRules?: BookingRulesConfig;
   general?: {
     systemName: string;
     contactEmail: string;

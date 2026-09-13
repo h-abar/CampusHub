@@ -11,7 +11,9 @@ import {
   Clock,
   Loader2,
   MapPin,
+  ScrollText,
   Send,
+  ShieldCheck,
   Sparkles,
   User,
   Users,
@@ -28,8 +30,16 @@ import type {
 } from '../../types';
 import VenueAvailabilityPopup from '../VenueAvailabilityPopup';
 import { useLanguage } from '../../context/LanguageContext';
-import { getStoredVenues } from '../../utils/storage';
-import { normalizeDateRange, rangesOverlap, formatDate, formatTime } from '../../utils/dateUtils';
+import { getStoredVenues, getSystemSettings } from '../../utils/storage';
+import { validateBookingDates } from '../../utils/bookingUtils';
+import {
+  addDaysISO,
+  normalizeDateRange,
+  rangesOverlap,
+  formatDate,
+  formatTime,
+  todayISO,
+} from '../../utils/dateUtils';
 
 interface Props {
   formData: ServiceFormData;
@@ -90,8 +100,20 @@ export default function TheaterBookingWizard({
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [step, setStep] = useState(0);
   const [stepError, setStepError] = useState('');
+  const [rulesAccepted, setRulesAccepted] = useState(false);
+  const [rulesCfg] = useState(() => {
+    const br = getSystemSettings().bookingRules;
+    return {
+      maxAdvanceDays: br?.maxAdvanceDays ?? 60,
+      maxConsecutiveDays: br?.maxConsecutiveDays ?? 5,
+      rules: (br?.rules || []).filter((r) => r.enabled),
+    };
+  });
+  const today = todayISO();
+  const maxDate = addDaysISO(rulesCfg.maxAdvanceDays, today);
 
   const STEPS = [
+    { id: 'rules', icon: ScrollText, ar: 'ضوابط الحجز', en: 'Booking Rules' },
     { id: 'event', icon: Sparkles, ar: 'الفعالية والقاعات', en: 'Event & Venues' },
     { id: 'schedule', icon: CalendarDays, ar: 'المواعيد', en: 'Schedule' },
     { id: 'requester', icon: User, ar: 'الجهة والتواصل', en: 'Requester' },
@@ -184,23 +206,38 @@ export default function TheaterBookingWizard({
   /* ---------- step validation ---------- */
   const validateStep = (s: number): string => {
     if (s === 0) {
+      if (!rulesAccepted)
+        return isAr ? 'يجب الاطلاع على ضوابط الحجز والموافقة عليها للمتابعة' : 'You must read and accept the booking rules';
+    }
+    if (s === 1) {
       if (!formData.venueEventType) return isAr ? 'اختر نوع الفعالية' : 'Select event type';
       if (!formData.title.trim()) return isAr ? 'أدخل عنوان الفعالية' : 'Enter event title';
       if (!formData.venues?.length) return isAr ? 'اختر قاعة واحدة على الأقل' : 'Select at least one venue';
     }
-    if (s === 1) {
+    if (s === 2) {
       for (const slot of formData.eventDates) {
         if (!slot.date || !slot.startTime || !slot.endTime)
           return isAr ? 'أكمل التاريخ والوقت لكل موعد' : 'Complete date & time for every slot';
         if (slot.startTime >= slot.endTime)
           return isAr ? 'وقت النهاية يجب أن يكون بعد البداية' : 'End time must be after start';
       }
+      const violation = validateBookingDates(formData.eventDates, rulesCfg, today);
+      if (violation?.code === 'past_date')
+        return isAr ? 'لا يمكن الحجز في تاريخ سابق' : 'Cannot book a past date';
+      if (violation?.code === 'beyond_window')
+        return isAr
+          ? `ضابط الحجز: تُقبل المواعيد ضمن ${rulesCfg.maxAdvanceDays} يوماً القادمة فقط (حتى ${formatDate(maxDate, language)})`
+          : `Booking rule: dates are only accepted within the next ${rulesCfg.maxAdvanceDays} days`;
+      if (violation?.code === 'consecutive_days')
+        return isAr
+          ? `ضابط الحجز: لا يجوز الحجز لأكثر من ${rulesCfg.maxConsecutiveDays} أيام متصلة (الطلب الحالي: ${violation.runLength} أيام) — للاستثناءات تواصل مع إدارة المركز`
+          : `Booking rule: max ${rulesCfg.maxConsecutiveDays} consecutive days (current: ${violation.runLength})`;
       if (hasConflict)
         return isAr
           ? 'يوجد تعارض مع حجز قائم — عدّل الموعد أو افتح جدول الإتاحة'
           : 'A slot conflicts with an existing booking — adjust it or open availability';
     }
-    if (s === 2) {
+    if (s === 3) {
       if (!formData.requesterName.trim()) return isAr ? 'أدخل اسم مقدم الطلب' : 'Enter requester name';
       if (!formData.requesterEmail.trim()) return isAr ? 'أدخل البريد الإلكتروني' : 'Enter email';
       if (formData.requesterType === 'internal' && (!collegeId || !deptName))
@@ -288,8 +325,69 @@ export default function TheaterBookingWizard({
         </div>
       )}
 
-      {/* ===== STEP 1: Event details + Venues ===== */}
+      {/* ===== STEP 0: Booking rules ===== */}
       {step === 0 && (
+        <div className="space-y-5 animate-fadeIn">
+          <div className="rounded-2xl border border-[var(--line)] overflow-hidden">
+            <div className="p-4 bg-gradient-to-r from-ink to-primary-800 text-white flex items-center gap-3">
+              <ShieldCheck className="w-6 h-6 text-secondary-300 shrink-0" />
+              <div>
+                <h3 className="font-bold">
+                  {isAr ? 'ضوابط وإجراءات حجز مرافق المركز' : 'Venue Booking Rules & Procedures'}
+                </h3>
+                <p className="text-xs text-white/70">
+                  {isAr ? 'تُراعى الضوابط التالية عند تقديم ودراسة طلبات الحجز أو الاستخدام أو التأجير' : 'The following rules apply when submitting and reviewing booking requests'}
+                </p>
+              </div>
+            </div>
+            <div className="p-4 sm:p-5">
+              {/* النافذة الزمنية */}
+              <div className="mb-4 p-3.5 rounded-xl bg-primary-50 border border-primary-200 text-sm text-primary-900 flex items-start gap-2.5">
+                <CalendarDays className="w-5 h-5 shrink-0 text-primary-700 mt-0.5" />
+                <span>
+                  {isAr
+                    ? `نظراً لأن المواعيد الواردة تمتد لفترات بعيدة، يقتصر تقديم الطلب حالياً على المواعيد الواقعة ضمن الـ(${rulesCfg.maxAdvanceDays}) يوماً القادمة — أي حتى ${formatDate(maxDate, language)} — وتُقدَّم طلبات المواعيد اللاحقة في حينها.`
+                    : `Requests are currently accepted for dates within the next ${rulesCfg.maxAdvanceDays} days only (until ${formatDate(maxDate, language)}).`}
+                </span>
+              </div>
+
+              <ol className="space-y-2.5">
+                {rulesCfg.rules.map((r, i) => (
+                  <li key={r.id} className="flex gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 text-sm leading-relaxed text-ink-700">
+                    <span className="w-6 h-6 rounded-full bg-primary-700 text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+                      {i + 1}
+                    </span>
+                    <span>{isAr ? r.ar : r.en}</span>
+                  </li>
+                ))}
+              </ol>
+
+              <label
+                className={`mt-5 flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                  rulesAccepted
+                    ? 'border-primary bg-primary-50/70'
+                    : 'border-slate-200 hover:border-primary-300 bg-white'
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  className="accent-primary w-5 h-5 shrink-0"
+                  checked={rulesAccepted}
+                  onChange={(e) => setRulesAccepted(e.target.checked)}
+                />
+                <span className="text-sm font-bold text-ink-800">
+                  {isAr
+                    ? 'أقر بأنني اطلعت على ضوابط وإجراءات الحجز وأوافق على الالتزام بها'
+                    : 'I have read and agree to comply with the booking rules and procedures'}
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== STEP 1: Event details + Venues ===== */}
+      {step === 1 && (
         <div className="space-y-6 animate-fadeIn">
           <div className="rounded-xl bg-primary-50/40 border border-primary/15 p-4">
             <label className="label !mb-2">{t('form.event_type')}</label>
@@ -437,7 +535,7 @@ export default function TheaterBookingWizard({
       )}
 
       {/* ===== STEP 2: Schedule + live availability ===== */}
-      {step === 1 && (
+      {step === 2 && (
         <div className="space-y-5 animate-fadeIn">
           <div className="flex items-center justify-between">
             <label className="label !mb-0">{t('form.dates.label')}</label>
@@ -449,6 +547,12 @@ export default function TheaterBookingWizard({
               <CalendarDays className="w-3.5 h-3.5" />
               {t('form.venues.availability_title')}
             </button>
+          </div>
+
+          <div className="text-[11px] text-slate-500 bg-slate-50 border border-slate-100 rounded-lg px-3 py-2">
+            {isAr
+              ? `ضابط الحجز: المواعيد المتاحة من اليوم حتى ${formatDate(maxDate, language)} (${rulesCfg.maxAdvanceDays} يوماً)، وبحد أقصى ${rulesCfg.maxConsecutiveDays} أيام متصلة لكل طلب.`
+              : `Rule: dates from today until ${formatDate(maxDate, language)}, max ${rulesCfg.maxConsecutiveDays} consecutive days.`}
           </div>
 
           <div className="space-y-3">
@@ -501,6 +605,8 @@ export default function TheaterBookingWizard({
                       <input
                         type="date"
                         className="input-field !py-2"
+                        min={today}
+                        max={maxDate}
                         value={slot.date || ''}
                         onChange={(e) => updateSlot(i, { date: e.target.value })}
                       />
@@ -536,7 +642,7 @@ export default function TheaterBookingWizard({
       )}
 
       {/* ===== STEP 3: Requester ===== */}
-      {step === 2 && (
+      {step === 3 && (
         <div className="space-y-5 animate-fadeIn">
           <div>
             <label className="label">{t('form.requesterType')}</label>
@@ -673,7 +779,7 @@ export default function TheaterBookingWizard({
       )}
 
       {/* ===== STEP 4: Review ===== */}
-      {step === 3 && (
+      {step === 4 && (
         <div className="space-y-5 animate-fadeIn">
           <div className="rounded-2xl border border-[var(--line)] overflow-hidden">
             <div className="p-4 bg-gradient-to-r from-ink to-primary-800 text-white">

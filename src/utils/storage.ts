@@ -74,6 +74,7 @@ export function ensureInitialized(): void {
         ? existing.externalEntities
         : DEFAULT_SETTINGS.externalEntities,
       general: existing.general || DEFAULT_SETTINGS.general,
+      bookingRules: existing.bookingRules || DEFAULT_SETTINGS.bookingRules,
     };
     localStorage.setItem(KEYS.SETTINGS, JSON.stringify(merged));
   }

@@ -1,4 +1,4 @@
-import type { SystemSettings, VenueInfo, ServiceRequest } from '../types';
+import type { BookingRulesConfig, SystemSettings, VenueInfo, ServiceRequest } from '../types';
 import type { StoredAdmin } from '../types/auth';
 
 export const SEED_ADMINS: StoredAdmin[] = [
@@ -434,6 +434,68 @@ export const DEFAULT_VENUES: VenueInfo[] = [
   },
 ];
 
+/** ضوابط وإجراءات حجز مرافق مركز مؤتمرات وأعمال الدرعية — قابلة للتعديل من لوحة التحكم */
+export const DEFAULT_BOOKING_RULES: BookingRulesConfig = {
+  maxAdvanceDays: 60,
+  maxConsecutiveDays: 5,
+  rules: [
+    {
+      id: 'r1',
+      ar: 'يقتصر تقديم طلبات حجز واستخدام مرافق المركز من داخل الجامعة على عمداء الكليات والإدارات ومديري الإدارات، وفق الإجراءات والقنوات المعتمدة.',
+      en: 'Booking requests from inside the university are limited to college deans and department directors, through approved procedures.',
+      enabled: true,
+    },
+    {
+      id: 'r2',
+      ar: 'تُرفع الطلبات المتعلقة بالأنشطة والفعاليات والأندية الطلابية من خلال إدارة شؤون الطلاب، وفق الإجراءات المعتمدة.',
+      en: 'Requests for student activities, events and clubs are submitted through Student Affairs.',
+      enabled: true,
+    },
+    {
+      id: 'r3',
+      ar: 'يُشترط لإقامة الفعاليات والمناسبات — داخلية أو خارجية — الحصول على الموافقات والاعتمادات اللازمة من الجهات المختصة واستكمال الإجراءات قبل اعتماد الحجز أو تأكيد إتاحة المرفق.',
+      en: 'Internal or external events require all necessary approvals from competent authorities before booking approval.',
+      enabled: true,
+    },
+    {
+      id: 'r4',
+      ar: 'لا يُعد تقديم طلب الحجز أو الاستخدام أو التأجير موافقة تلقائية أو تأكيداً للحجز، وإنما يخضع الطلب للمراجعة والتنسيق والاعتماد وفق الإجراءات المتبعة.',
+      en: 'Submitting a request is not an automatic approval; it is subject to review, coordination and approval.',
+      enabled: true,
+    },
+    {
+      id: 'r5',
+      ar: 'تُدرس الطلبات وفقاً لمدى توافر المرفق المطلوب وعدم وجود تعارض في المكان أو الزمان، مع مراعاة الاحتياجات التشغيلية للمركز والجهات المستفيدة.',
+      en: 'Requests are reviewed based on venue availability, absence of time/place conflicts, and operational needs.',
+      enabled: true,
+    },
+    {
+      id: 'r6',
+      ar: 'لا يجوز حجز أي من مرافق المركز لمدة تتجاوز خمسة أيام متصلة، ويُنظر في أي طلب يتجاوز هذه المدة بالتنسيق مع إدارة مركز مؤتمرات وأعمال الدرعية.',
+      en: 'No venue may be booked for more than five consecutive days; exceptions require coordination with the Diriyah Center management.',
+      enabled: true,
+    },
+    {
+      id: 'r7',
+      ar: 'تُراعى عند دراسة الطلبات أي أعمال صيانة أو تطوير أو متطلبات تشغيلية قد تؤثر في إتاحة المرفق.',
+      en: 'Maintenance, development or operational requirements affecting availability are considered.',
+      enabled: true,
+    },
+    {
+      id: 'r8',
+      ar: 'يجوز للمركز في الحالات الاستثنائية ذات الأهمية العالية تعليق أو إيقاف استخدام المرفق عند الضرورة، على أن تُشعَر الجهة المعنية قبل الموعد بما لا يقل عن 48 ساعة.',
+      en: 'The center may suspend a facility in exceptional high-priority cases, with at least 48 hours notice.',
+      enabled: true,
+    },
+    {
+      id: 'r9',
+      ar: 'يتم إشعار مقدم الطلب بنتيجة الطلب بعد استكمال إجراءات المراجعة والتنسيق واعتماد الطلب.',
+      en: 'The requester is notified of the result after review, coordination and approval are completed.',
+      enabled: true,
+    },
+  ],
+};
+
 export const DEFAULT_SETTINGS: SystemSettings = {
   services: [
     {
@@ -608,6 +670,7 @@ export const DEFAULT_SETTINGS: SystemSettings = {
     logoUrl: 'https://www.um.edu.sa/wp-content/uploads/2024/07/logo_um.png',
     defaultLanguage: 'ar',
   },
+  bookingRules: DEFAULT_BOOKING_RULES,
 };
 
 export function generateTrackingCode(): string {
