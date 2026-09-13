@@ -21,24 +21,14 @@ interface SlideDef {
 
 const SLIDES: SlideDef[] = [
   {
-    image: '/img/hero-university.jpg',
+    image: '/img/hero-campus-main.jpg',
     titleKey: 'landing.hero.title',
     subtitleKey: 'landing.hero.subtitle',
   },
   {
-    image: '/img/campus-1.jpg',
-    titleKey: 'landing.features.venues',
-    subtitleKey: 'landing.features.venues.desc',
-  },
-  {
-    image: '/img/business-students.jpg',
-    titleKey: 'landing.features.events',
-    subtitleKey: 'landing.features.events.desc',
-  },
-  {
-    image: '/img/campus-2.jpg',
-    titleKey: 'landing.features.tracking',
-    subtitleKey: 'landing.features.tracking.desc',
+    image: '/img/hero-lab.jpg',
+    titleKey: 'landing.features.title',
+    subtitleKey: 'landing.features.subtitle',
   },
 ];
 
