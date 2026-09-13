@@ -448,17 +448,17 @@ export default function DiriyahCenterPage() {
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight tracking-tight mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight tracking-tight mb-6 text-white">
               {isAr ? (
                 <>
-                  منظومة متكاملة لاستضافة{' '}
+                  <span className="text-white">منظومة متكاملة لاستضافة</span>{' '}
                   <span className="text-transparent bg-clip-text bg-gradient-to-l from-secondary to-primary-300">
                     المؤتمرات الكبرى وفعاليات الأعمال
                   </span>
                 </>
               ) : (
                 <>
-                  Premier Destination for{' '}
+                  <span className="text-white">Premier Destination for</span>{' '}
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-primary-300">
                     Conferences & Corporate Events
                   </span>
