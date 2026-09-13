@@ -420,7 +420,7 @@ export default function DiriyahCenterPage() {
         {/* Background Image with Deep Overlay */}
         <div className="absolute inset-0">
           <img
-            src="/img/business-presentation.jpg"
+            src="/img/hero-campus-main.jpg"
             alt="Diriyah Center"
             className="w-full h-full object-cover object-center opacity-30 transform scale-105"
           />
